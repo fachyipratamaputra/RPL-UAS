@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Pengguna - Admin Toko Baju Online</title>
+    <link rel="stylesheet" href="../../assets/css/global/global.css">
+    <link rel="stylesheet" href="../../assets/css/admin/users.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div id="sidebar-container"></div>
+    
+    <div class="main-content">
+        <div id="header-container"></div>
+        
+        <div class="users-container">
+            <div class="page-header">
+                <h1>Kelola Pengguna</h1>
+                <button onclick="showAddUserModal()" class="btn-primary"><i class="fas fa-user-plus"></i> Tambah Pengguna</button>
+            </div>
+            
+            <div class="filters-bar">
+                <input type="text" id="searchUser" placeholder="Cari pengguna..." class="search-input">
+                <select id="userRoleFilter" class="filter-select">
+                    <option value="all">Semua Role</option>
+                    <option value="customer">Customer</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="data-table" id="usersTable">
+                    <thead>
+                        <tr><th>ID</th><th>Nama</th><th>Email</th><th>No. Telepon</th><th>Role</th><th>Status</th><th>Bergabung</th><th>Aksi</th></tr>
+                    </thead>
+                    <tbody id="usersBody"></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div id="footer-container"></div>
+    </div>
+    
+    <!-- Modal Tambah User -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Tambah Pengguna Baru</h3>
+                <span class="close">&times;</span>
+            </div>
+            <form id="userForm">
+                <div class="form-group">
+                    <label>Nama Lengkap</label>
+                    <input type="text" id="userFullname" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="userEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>No. Telepon</label>
+                    <input type="tel" id="userPhone" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="userPassword" required>
+                </div>
+                <div class="form-group">
+                    <label>Role</label>
+                    <select id="userRole">
+                        <option value="customer">Customer</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary">Simpan</button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        let users = JSON.parse(localStorage.getItem('users')) || [
+            {id: 1, name: 'Budi Santoso', email: 'budi@email.com', phone: '081234567890', role: 'customer', status: 'active', joined: '2024-01-15'},
+            {id: 2, name: 'Siti Rahayu', email: 'siti@email.com', phone: '081234567891', role: 'customer', status: 'active', joined: '2024-01-20'},
+            {id: 3, name: 'Admin Toko', email: 'admin@tokobaju.com', phone: '081234567892', role: 'admin', status: 'active', joined: '2024-01-01'}
+        ];
+        
+        function saveUsers() {
+            localStorage.setItem('users', JSON.stringify(users));
+        }
+        
+        function renderUsers() {
+            const searchTerm = document.getElementById('searchUser').value.toLowerCase();
+            const roleFilter = document.getElementById('userRoleFilter').value;
+            
+            let filtered = users.filter(u => {
+                const matchSearch = u.name.toLowerCase().includes(searchTerm) || u.email.toLowerCase().includes(searchTerm);
+                const matchRole = roleFilter === 'all' || u.role === roleFilter;
+                return matchSearch && matchRole;
+            });
+            
+            const tbody = document.getElementById('usersBody');
+            tbody.innerHTML = filtered.map(user => `
+                <tr>
+                    <td>${user.id}</td>
+                    <td><strong>${user.name}</strong></td>
+                    <td>${user.email}</td>
+                    <td>${user.phone}</td>
+                    <td><span class="role-badge ${user.role}">${user.role === 'admin' ? 'Admin' : 'Customer'}</span></td>
+                    <td><span class="status-badge ${user.status}">${user.status === 'active' ? 'Aktif' : 'Nonaktif'}</span></td>
+                    <td>${user.joined}</td>
+                    <td class="actions">
+                        <button onclick="toggleUserStatus(${user.id})" class="btn-toggle"><i class="fas ${user.status === 'active' ? 'fa-ban' : 'fa-check'}"></i></button>
+                        <button onclick="deleteUser(${user.id})" class="btn-delete"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        function toggleUserStatus(id) {
+            const user = users.find(u => u.id === id);
+            if(user && user.role !== 'admin') {
+                user.status = user.status === 'active' ? 'inactive' : 'active';
+                saveUsers();
+                renderUsers();
+                alert(`Status user ${user.name} telah diubah`);
+            } else if(user.role === 'admin') {
+                alert('Tidak dapat mengubah status admin utama!');
+            }
+        }
+        
+        function deleteUser(id) {
+            const user = users.find(u => u.id === id);
+            if(user && user.role !== 'admin') {
+                if(confirm(`Yakin ingin menghapus user ${user.name}?`)) {
+                    users = users.filter(u => u.id !== id);
+                    saveUsers();
+                    renderUsers();
+                    alert('User berhasil dihapus');
+                }
+            } else {
+                alert('Tidak dapat menghapus admin utama!');
+            }
+        }
+        
+        // Modal handling
+        const modal = document.getElementById('userModal');
+        
+        function showAddUserModal() {
+            modal.style.display = 'block';
+        }
+        
+        document.querySelectorAll('.close').forEach(close => {
+            close.onclick = function() {
+                modal.style.display = 'none';
+            }
+        });
+        
+        window.onclick = function(event) {
+            if(event.target === modal) modal.style.display = 'none';
+        }
+        
+        document.getElementById('userForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const newId = users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 4;
+            const newUser = {
+                id: newId,
+                name: document.getElementById('userFullname').value,
+                email: document.getElementById('userEmail').value,
+                phone: document.getElementById('userPhone').value,
+                role: document.getElementById('userRole').value,
+                status: 'active',
+                joined: new Date().toISOString().split('T')[0]
+            };
+            
+            users.push(newUser);
+            saveUsers();
+            renderUsers();
+            modal.style.display = 'none';
+            this.reset();
+            alert('Pengguna berhasil ditambahkan!');
+        });
+        
+        document.getElementById('searchUser').addEventListener('input', renderUsers);
+        document.getElementById('userRoleFilter').addEventListener('change', renderUsers);
+        
+        // Load components
+        Promise.all([
+            fetch('../../components/sidebar-admin.html').then(res => res.text()),
+            fetch('../../components/header.html').then(res => res.text()),
+            fetch('../../components/footer.html').then(res => res.text())
+        ]).then(([sidebar, header, footer]) => {
+            document.getElementById('sidebar-container').innerHTML = sidebar;
+            document.getElementById('header-container').innerHTML = header;
+            document.getElementById('footer-container').innerHTML = footer;
+            saveUsers();
+            renderUsers();
+        });
+    </script>
+</body>
+</html>
