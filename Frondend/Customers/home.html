@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Toko Baju Online</title>
+    <link rel="stylesheet" href="Assets/css/global.css">
+    <link rel="stylesheet" href="Assets/css/Customer/home.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="header-container"></div>
+    <div id="navbar-container"></div>
+    
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-container">
+                <div class="hero-content">
+                    <h1>Selamat Datang di <span class="highlight">Toko Baju Online</span></h1>
+                    <p>Temukan fashion terbaik untuk penampilanmu</p>
+                    <a href="Frondend/Customers/products.html" class="btn-primary">Mulai Belanja</a>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Categories -->
+        <section class="categories">
+            <div class="container">
+                <h2>Kategori Populer</h2>
+                <div class="category-grid">
+                    <div class="category-card" onclick="location.href='products.html?cat=wanita'">
+                        <i class="fas fa-female"></i>
+                        <h3>Wanita</h3>
+                    </div>
+                    <div class="category-card" onclick="location.href='products.html?cat=pria'">
+                        <i class="fas fa-male"></i>
+                        <h3>Pria</h3>
+                    </div>
+                    <div class="category-card" onclick="location.href='products.html?cat=anak'">
+                        <i class="fas fa-child"></i>
+                        <h3>Anak</h3>
+                    </div>
+                    <div class="category-card" onclick="location.href='products.html?cat=aksesoris'">
+                        <i class="fas fa-gem"></i>
+                        <h3>Aksesoris</h3>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Featured Products -->
+        <section class="featured-products">
+            <div class="container">
+                <h2>Produk Terbaru</h2>
+                <div class="products-grid" id="featuredProducts"></div>
+            </div>
+        </section>
+    </main>
+    
+    <div id="footer-container"></div>
+    <div id="chatbot-container"></div>
+    
+    <script>
+        // Check login status
+        if(!localStorage.getItem('isLoggedIn')) {
+            window.location.href = 'login.html';
+        }
+        
+        // Load components
+        Promise.all([
+            fetch('Components/header.html').then(res => res.text()),
+            fetch('Components/navbar.html').then(res => res.text()),
+            fetch('Components/footer.html').then(res => res.text()),
+            fetch('Components/chatbot-widget.html').then(res => res.text())
+        ]).then(([header, navbar, footer, chatbot]) => {
+            document.getElementById('header-container').innerHTML = header;
+            document.getElementById('navbar-container').innerHTML = navbar;
+            document.getElementById('footer-container').innerHTML = footer;
+            document.getElementById('chatbot-container').innerHTML = chatbot;
+        });
+        
+        // Load featured products
+        const products = [
+            {id: 1, name: 'Kaos Polos Premium', price: 150000, image: 'https://via.placeholder.com/300'}, 
+            {id: 2, name: 'Kemeja Flanel', price: 250000, image: 'https://via.placeholder.com/300'},
+            {id: 3, name: 'Dress Wanita', price: 350000, image: 'https://via.placeholder.com/300'},
+            {id: 4, name: 'Jaket Denim', price: 450000, image: 'https://via.placeholder.com/300'}
+        ];
+        
+        const productsGrid = document.getElementById('featuredProducts');
+        products.forEach(product => {
+            productsGrid.innerHTML += `
+                <div class="product-card">
+                    <img src="${product.image}" alt="${product.name}">
+                    <h3>${product.name}</h3>
+                    <p>Rp ${product.price.toLocaleString()}</p>
+                    <button onclick="addToCart(${product.id})">Tambah ke Keranjang</button>
+                    <a href="product-detail.html?id=${product.id}">Lihat Detail</a>
+                </div>
+            `;
+        });
+        
+        function addToCart(productId) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const existing = cart.find(item => item.id === productId);
+            if(existing) {
+                existing.quantity++;
+            } else {
+                cart.push({id: productId, quantity: 1});
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            alert('Produk ditambahkan ke keranjang!');
+        }
+    </script>
+</body>
+</html>

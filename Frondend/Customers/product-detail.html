@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Produk - Toko Baju Online</title>
+    <link rel="stylesheet" href="../../assets/css/global/global.css">
+    <link rel="stylesheet" href="../../assets/css/customer/product-detail.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div id="header-container"></div>
+    <div id="navbar-container"></div>
+    
+    <main class="detail-main">
+        <div class="container">
+            <div class="product-detail" id="productDetail"></div>
+        </div>
+    </main>
+    
+    <div id="footer-container"></div>
+    
+    <script>
+        const products = {
+            1: {id: 1, name: 'Kaos Polos Premium', price: 150000, category: 'wanita', size: ['S','M','L','XL'], color: ['Hitam','Putih','Biru'], stock: 50, description: 'Kaos polos premium dengan bahan katun yang nyaman dipakai sehari-hari.', image: 'https://via.placeholder.com/500'},
+            2: {id: 2, name: 'Kemeja Flanel Pria', price: 250000, category: 'pria', size: ['M','L','XL'], color: ['Merah','Hitam','Coklat'], stock: 30, description: 'Kemeja flanel casual cocok untuk gaya sehari-hari.', image: 'https://via.placeholder.com/500'},
+            3: {id: 3, name: 'Dress Wanita Elegan', price: 350000, category: 'wanita', size: ['S','M','L'], color: ['Hitam','Burgundy'], stock: 25, description: 'Dress elegan untuk acara formal dan semi formal.', image: 'https://via.placeholder.com/500'}
+        };
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id');
+        const product = products[productId];
+        
+        function renderProduct() {
+            const container = document.getElementById('productDetail');
+            if(!product) {
+                container.innerHTML = '<h2>Produk tidak ditemukan</h2><a href="products.html">Kembali ke Produk</a>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="product-gallery">
+                    <img src="${product.image}" alt="${product.name}">
+                </div>
+                <div class="product-info">
+                    <h1>${product.name}</h1>
+                    <div class="product-price">Rp ${product.price.toLocaleString()}</div>
+                    <div class="product-rating">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                        <span>(4.5 dari 120 ulasan)</span>
+                    </div>
+                    <p class="product-description">${product.description}</p>
+                    
+                    <div class="product-options">
+                        <div class="option-group">
+                            <label>Ukuran:</label>
+                            <div class="size-options">
+                                ${product.size.map(s => `<button class="size-btn">${s}</button>`).join('')}
+                            </div>
+                        </div>
+                        
+                        <div class="option-group">
+                            <label>Warna:</label>
+                            <div class="color-options">
+                                ${product.color.map(c => `<button class="color-btn" style="background: ${c.toLowerCase()}">${c}</button>`).join('')}
+                            </div>
+                        </div>
+                        
+                        <div class="option-group">
+                            <label>Jumlah:</label>
+                            <div class="quantity-selector">
+                                <button class="qty-btn minus">-</button>
+                                <input type="number" id="quantity" value="1" min="1" max="${product.stock}">
+                                <button class="qty-btn plus">+</button>
+                            </div>
+                        </div>
+                        
+                        <div class="product-actions">
+                            <button class="btn-add-cart" onclick="addToCart()"><i class="fas fa-shopping-cart"></i> Tambah ke Keranjang</button>
+                            <button class="btn-buy-now" onclick="buyNow()"><i class="fas fa-bolt"></i> Beli Sekarang</button>
+                        </div>
+                    </div>
+                    
+                    <div class="product-meta">
+                        <p>Stok: ${product.stock} pcs</p>
+                        <p>SKU: SKU-${product.id}${Date.now()}</p>
+                        <p>Kategori: ${product.category}</p>
+                    </div>
+                </div>
+            `;
+            
+            // Quantity selector
+            document.querySelector('.plus')?.addEventListener('click', () => {
+                const qty = document.getElementById('quantity');
+                if(parseInt(qty.value) < product.stock) qty.value = parseInt(qty.value) + 1;
+            });
+            document.querySelector('.minus')?.addEventListener('click', () => {
+                const qty = document.getElementById('quantity');
+                if(parseInt(qty.value) > 1) qty.value = parseInt(qty.value) - 1;
+            });
+        }
+        
+        function addToCart() {
+            const quantity = parseInt(document.getElementById('quantity').value);
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const existing = cart.find(item => item.id === product.id);
+            if(existing) {
+                existing.quantity += quantity;
+            } else {
+                cart.push({id: product.id, name: product.name, price: product.price, quantity: quantity});
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            alert(`${quantity} ${product.name} ditambahkan ke keranjang!`);
+        }
+        
+        function buyNow() {
+            addToCart();
+            window.location.href = 'checkout.html';
+        }
+        
+        // Load components
+        Promise.all([
+            fetch('../../components/header.html').then(res => res.text()),
+            fetch('../../components/navbar.html').then(res => res.text()),
+            fetch('../../components/footer.html').then(res => res.text())
+        ]).then(([header, navbar, footer]) => {
+            document.getElementById('header-container').innerHTML = header;
+            document.getElementById('navbar-container').innerHTML = navbar;
+            document.getElementById('footer-container').innerHTML = footer;
+            renderProduct();
+        });
+    </script>
+</body>
+</html>

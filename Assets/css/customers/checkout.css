@@ -1,0 +1,223 @@
+/* ========================================
+   CHECKOUT PAGE STYLES
+   Terhubung dengan: pages/customer/checkout.html
+   Dependensi: global.css
+   ======================================== */
+
+.checkout-main {
+    padding: 40px 0;
+    background: #f9fafb;
+    min-height: 70vh;
+}
+
+.checkout-main h1 {
+    font-size: 32px;
+    margin-bottom: 30px;
+    color: #1f2937;
+}
+
+.checkout-layout {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 30px;
+}
+
+/* Checkout Form */
+.checkout-form {
+    background: white;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.form-section {
+    margin-bottom: 30px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.form-section:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.form-section h3 {
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: #1f2937;
+}
+
+.form-section h3 i {
+    color: #4F46E5;
+    margin-right: 10px;
+}
+
+/* Shipping Options */
+.shipping-options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.shipping-option {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.shipping-option:hover {
+    border-color: #4F46E5;
+    background: #f9fafb;
+}
+
+.shipping-option input {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.shipping-option div {
+    flex: 1;
+}
+
+.shipping-option strong {
+    display: block;
+    margin-bottom: 5px;
+    color: #1f2937;
+}
+
+.shipping-option span {
+    font-size: 13px;
+    color: #6b7280;
+    display: inline-block;
+    margin-right: 15px;
+}
+
+/* Payment Options */
+.payment-options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.payment-option {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.payment-option:hover {
+    border-color: #4F46E5;
+    background: #f9fafb;
+}
+
+.payment-option input {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.payment-option i {
+    font-size: 24px;
+    color: #4F46E5;
+}
+
+.payment-option div {
+    flex: 1;
+}
+
+.payment-option strong {
+    display: block;
+    margin-bottom: 5px;
+    color: #1f2937;
+}
+
+.payment-option span {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+/* Order Summary in Checkout */
+.order-summary {
+    position: sticky;
+    top: 100px;
+}
+
+.order-summary .summary-card {
+    background: white;
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.order-items {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+}
+
+.order-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 14px;
+}
+
+.order-item span:first-child {
+    color: #6b7280;
+}
+
+.order-item span:last-child {
+    font-weight: 500;
+    color: #1f2937;
+}
+
+.btn-place-order {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #4F46E5, #7C3AED);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: all 0.3s ease;
+}
+
+.btn-place-order:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .checkout-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .checkout-form {
+        padding: 20px;
+    }
+    
+    .order-summary {
+        position: static;
+    }
+    
+    .form-row {
+        flex-direction: column;
+        gap: 15px;
+    }
+}

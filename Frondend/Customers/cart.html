@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keranjang Belanja - Toko Baju Online</title>
+    <link rel="stylesheet" href="../../assets/css/global/global.css">
+    <link rel="stylesheet" href="../../assets/css/customer/cart.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div id="header-container"></div>
+    <div id="navbar-container"></div>
+    
+    <main class="cart-main">
+        <div class="container">
+            <h1>Keranjang Belanja</h1>
+            <div class="cart-content">
+                <div class="cart-items" id="cartItems"></div>
+                <div class="cart-summary" id="cartSummary"></div>
+            </div>
+        </div>
+    </main>
+    
+    <div id="footer-container"></div>
+    
+    <script>
+        const products = {
+            1: {name: 'Kaos Polos Premium', price: 150000},
+            2: {name: 'Kemeja Flanel Pria', price: 250000},
+            3: {name: 'Dress Wanita Elegan', price: 350000},
+            4: {name: 'Jaket Denim', price: 450000}
+        };
+        
+        function loadCart() {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const cartItemsContainer = document.getElementById('cartItems');
+            const cartSummaryContainer = document.getElementById('cartSummary');
+            
+            if(cart.length === 0) {
+                cartItemsContainer.innerHTML = '<div class="empty-cart"><i class="fas fa-shopping-cart"></i><p>Keranjang kosong</p><a href="products.html" class="btn-primary">Belanja Sekarang</a></div>';
+                cartSummaryContainer.innerHTML = '';
+                return;
+            }
+            
+            let subtotal = 0;
+            cartItemsContainer.innerHTML = cart.map((item, index) => {
+                const product = products[item.id];
+                const itemTotal = product.price * item.quantity;
+                subtotal += itemTotal;
+                return `
+                    <div class="cart-item">
+                        <div class="item-info">
+                            <h3>${product.name}</h3>
+                            <p>Rp ${product.price.toLocaleString()}</p>
+                        </div>
+                        <div class="item-quantity">
+                            <button onclick="updateQuantity(${index}, ${item.quantity - 1})">-</button>
+                            <span>${item.quantity}</span>
+                            <button onclick="updateQuantity(${index}, ${item.quantity + 1})">+</button>
+                        </div>
+                        <div class="item-total">Rp ${itemTotal.toLocaleString()}</div>
+                        <button onclick="removeItem(${index})" class="remove-item"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+            }).join('');
+            
+            const shipping = subtotal > 200000 ? 0 : 20000;
+            const total = subtotal + shipping;
+            
+            cartSummaryContainer.innerHTML = `
+                <div class="summary-card">
+                    <h3>Ringkasan Belanja</h3>
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <span>Rp ${subtotal.toLocaleString()}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Ongkos Kirim</span>
+                        <span>${shipping === 0 ? 'GRATIS' : `Rp ${shipping.toLocaleString()}`}</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Total</span>
+                        <span>Rp ${total.toLocaleString()}</span>
+                    </div>
+                    <button class="btn-checkout" onclick="checkout()">Checkout</button>
+                    <a href="products.html" class="btn-continue">Lanjutkan Belanja</a>
+                </div>
+            `;
+        }
+        
+        function updateQuantity(index, newQuantity) {
+            if(newQuantity < 1) return;
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cart[index].quantity = newQuantity;
+            localStorage.setItem('cart', JSON.stringify(cart));
+            loadCart();
+        }
+        
+        function removeItem(index) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cart.splice(index, 1);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            loadCart();
+        }
+        
+        function checkout() {
+            window.location.href = 'checkout.html';
+        }
+        
+        // Load components
+        Promise.all([
+            fetch('../../components/header.html').then(res => res.text()),
+            fetch('../../components/navbar.html').then(res => res.text()),
+            fetch('../../components/footer.html').then(res => res.text())
+        ]).then(([header, navbar, footer]) => {
+            document.getElementById('header-container').innerHTML = header;
+            document.getElementById('navbar-container').innerHTML = navbar;
+            document.getElementById('footer-container').innerHTML = footer;
+            loadCart();
+        });
+    </script>
+</body>
+</html>

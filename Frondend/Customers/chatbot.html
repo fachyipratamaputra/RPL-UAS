@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot - Toko Baju Online</title>
+    <link rel="stylesheet" href="../../assets/css/global/global.css">
+    <link rel="stylesheet" href="../../assets/css/customer/chatbot.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div id="header-container"></div>
+    <div id="navbar-container"></div>
+    
+    <main class="chatbot-main">
+        <div class="container">
+            <div class="chatbot-container">
+                <div class="chatbot-header">
+                    <div class="chatbot-info">
+                        <i class="fas fa-robot"></i>
+                        <div>
+                            <h2>Asisten Virtual</h2>
+                            <p>Online - Siap membantu Anda</p>
+                        </div>
+                    </div>
+                    <button onclick="clearChat()" class="clear-btn"><i class="fas fa-trash"></i></button>
+                </div>
+                
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message bot">
+                        <div class="message-content">
+                            Halo! Saya asisten virtual Toko Baju Online. Ada yang bisa saya bantu?
+                        </div>
+                        <div class="message-time">Sekarang</div>
+                    </div>
+                </div>
+                
+                <div class="chat-input-area">
+                    <div class="quick-replies" id="quickReplies">
+                        <button onclick="sendQuickReply('Lihat produk')">Lihat produk</button>
+                        <button onclick="sendQuickReply('Cek pesanan')">Cek pesanan</button>
+                        <button onclick="sendQuickReply('Info pengiriman')">Info pengiriman</button>
+                        <button onclick="sendQuickReply('Panduan ukuran')">Panduan ukuran</button>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" id="chatInput" placeholder="Ketik pesan Anda..." onkeypress="handleKeyPress(event)">
+                        <button onclick="sendMessage()" class="send-btn"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <div id="footer-container"></div>
+    
+    <script>
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if(message === '') return;
+            
+            addMessage(message, 'user');
+            input.value = '';
+            
+            setTimeout(() => {
+                getBotResponse(message);
+            }, 500);
+        }
+        
+        function sendQuickReply(message) {
+            addMessage(message, 'user');
+            setTimeout(() => {
+                getBotResponse(message);
+            }, 500);
+        }
+        
+        function addMessage(text, sender) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            messageDiv.innerHTML = `
+                <div class="message-content">${text}</div>
+                <div class="message-time">${new Date().toLocaleTimeString()}</div>
+            `;
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        function getBotResponse(message) {
+            let response = '';
+            const lowerMsg = message.toLowerCase();
+            
+            if(lowerMsg.includes('halo') || lowerMsg.includes('hai') || lowerMsg.includes('hi')) {
+                response = 'Hai! Senang berkenalan dengan Anda. Ada yang bisa saya bantu?';
+            }
+            else if(lowerMsg.includes('produk') || lowerMsg.includes('belanja') || lowerMsg.includes('lihat produk')) {
+                response = 'Anda bisa melihat semua produk kami di halaman Produk. Klik link ini: <a href="products.html">Lihat Produk</a>';
+            }
+            else if(lowerMsg.includes('pesanan') || lowerMsg.includes('cek pesanan') || lowerMsg.includes('order')) {
+                response = 'Untuk cek status pesanan, silakan buka halaman Riwayat Pesanan: <a href="order-history.html">Riwayat Pesanan</a>';
+            }
+            else if(lowerMsg.includes('pengiriman') || lowerMsg.includes('ongkir') || lowerMsg.includes('shipping')) {
+                response = 'Kami melayani pengiriman ke seluruh Indonesia. Ongkos kirim mulai dari Rp15.000 - Rp30.000 tergantung lokasi. Minimal belanja Rp200.000 gratis ongkir!';
+            }
+            else if(lowerMsg.includes('ukuran') || lowerMsg.includes('size') || lowerMsg.includes('panduan ukuran')) {
+                response = 'Panduan ukuran: S (Small) = Lingkar dada 86cm, M (Medium) = 92cm, L (Large) = 98cm, XL = 104cm. Untuk detail lengkap, kunjungi halaman produk.';
+            }
+            else if(lowerMsg.includes('pembayaran') || lowerMsg.includes('bayar')) {
+                response = 'Kami menerima pembayaran via Transfer Bank (BCA, Mandiri, BNI, BRI), Kartu Kredit (Visa/Mastercard), E-Wallet (OVO, GoPay, Dana, ShopeePay), dan COD (Bayar di Tempat).';
+            }
+            else if(lowerMsg.includes('return') || lowerMsg.includes('pengembalian') || lowerMsg.includes('garansi')) {
+                response = 'Kami memberikan garansi return 14 hari. Syarat: barang tidak pernah dipakai, tag masih terpasang, dan kondisi baik. Silakan hubungi CS untuk prosedur lebih lanjut.';
+            }
+            else if(lowerMsg.includes('diskon') || lowerMsg.includes('promo') || lowerMsg.includes('voucher')) {
+                response = 'Saat ini ada promo diskon up to 50% untuk koleksi terbaru! Juga diskon 20% untuk pembelian pertama dengan kode BAJU20. Cek halaman produk untuk info lebih lanjut!';
+            }
+            else if(lowerMsg.includes('kontak') || lowerMsg.includes('cs') || lowerMsg.includes('customer service')) {
+                response = 'Anda bisa menghubungi CS kami di: Email: cs@tokobaju.com, Telepon: (021) 12345678, WhatsApp: 081234567890. Senin-Minggu, 08:00-21:00 WIB.';
+            }
+            else {
+                response = 'Maaf, saya belum mengerti pertanyaan Anda. Silakan coba dengan kata kunci seperti "produk", "pesanan", "pengiriman", atau "pembayaran". Atau hubungi CS kami di WhatsApp 081234567890.';
+            }
+            
+            addMessage(response, 'bot');
+        }
+        
+        function handleKeyPress(event) {
+            if(event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+        
+        function clearChat() {
+            if(confirm('Hapus semua percakapan?')) {
+                const messagesContainer = document.getElementById('chatMessages');
+                messagesContainer.innerHTML = `
+                    <div class="message bot">
+                        <div class="message-content">
+                            Halo! Saya asisten virtual Toko Baju Online. Ada yang bisa saya bantu?
+                        </div>
+                        <div class="message-time">Sekarang</div>
+                    </div>
+                `;
+            }
+        }
+        
+        // Load components
+        Promise.all([
+            fetch('../../components/header.html').then(res => res.text()),
+            fetch('../../components/navbar.html').then(res => res.text()),
+            fetch('../../components/footer.html').then(res => res.text())
+        ]).then(([header, navbar, footer]) => {
+            document.getElementById('header-container').innerHTML = header;
+            document.getElementById('navbar-container').innerHTML = navbar;
+            document.getElementById('footer-container').innerHTML = footer;
+        });
+    </script>
+</body>
+</html>

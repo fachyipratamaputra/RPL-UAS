@@ -1,0 +1,219 @@
+/* ========================================
+   PROFILE PAGE STYLES
+   Terhubung dengan: pages/customer/profile.html
+   Dependensi: global.css
+   ======================================== */
+
+.profile-main {
+    padding: 40px 0;
+    background: #f9fafb;
+    min-height: 70vh;
+}
+
+.profile-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 30px;
+}
+
+/* Profile Sidebar */
+.profile-sidebar {
+    background: white;
+    border-radius: 16px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 100px;
+}
+
+.profile-avatar {
+    margin-bottom: 15px;
+}
+
+.profile-avatar i {
+    font-size: 80px;
+    color: #4F46E5;
+}
+
+.profile-name {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #1f2937;
+}
+
+.profile-email {
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 25px;
+}
+
+.profile-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-align: left;
+}
+
+.nav-btn {
+    padding: 12px 15px;
+    background: none;
+    border: none;
+    border-radius: 10px;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #6b7280;
+}
+
+.nav-btn i {
+    width: 25px;
+    margin-right: 10px;
+}
+
+.nav-btn:hover {
+    background: #f3f4f6;
+    color: #4F46E5;
+}
+
+.nav-btn.active {
+    background: #4F46E5;
+    color: white;
+}
+
+/* Profile Content */
+.profile-content {
+    background: white;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.tab-content {
+    display: none;
+    animation: fadeInUp 0.3s ease;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.tab-content h2 {
+    font-size: 24px;
+    margin-bottom: 25px;
+    color: #1f2937;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #4F46E5;
+}
+
+/* Address Card */
+.address-card {
+    background: #f9fafb;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border: 1px solid #e5e7eb;
+}
+
+.address-card strong {
+    display: block;
+    margin-bottom: 8px;
+    color: #1f2937;
+}
+
+.address-card p {
+    margin-bottom: 5px;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.btn-edit,
+.btn-delete,
+.btn-add-address {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-edit {
+    background: #f3f4f6;
+    color: #4F46E5;
+    margin-right: 8px;
+}
+
+.btn-edit:hover {
+    background: #e5e7eb;
+}
+
+.btn-delete {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.btn-delete:hover {
+    background: #fecaca;
+}
+
+.btn-add-address {
+    background: #4F46E5;
+    color: white;
+    margin-top: 15px;
+    width: 100%;
+}
+
+.btn-add-address:hover {
+    background: #4338ca;
+}
+
+/* Security Form */
+#securityForm .form-group {
+    margin-bottom: 20px;
+}
+
+#securityForm label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #374151;
+}
+
+#securityForm input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .profile-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .profile-sidebar {
+        position: static;
+    }
+    
+    .profile-content {
+        padding: 20px;
+    }
+    
+    .address-card {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .address-card div:last-child {
+        align-self: flex-end;
+    }
+}

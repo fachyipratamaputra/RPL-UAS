@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - Toko Baju Online</title>
+    <link rel="stylesheet" href="Assets/css/global.css">
+    <link rel="stylesheet" href="Assets/css/admin/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div id="sidebar-container"></div>
+    
+    <div class="main-content">
+        <div id="header-container"></div>
+        
+        <div class="dashboard-container">
+            <div class="dashboard-header">
+                <h1>Dashboard</h1>
+                <p>Selamat datang, <span id="adminName">Admin</span></p>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-shopping-bag"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalOrders">0</h3>
+                        <p>Total Pesanan</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalUsers">0</h3>
+                        <p>Total Pengguna</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalProducts">0</h3>
+                        <p>Total Produk</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalRevenue">Rp 0</h3>
+                        <p>Total Pendapatan</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="charts-row">
+                <div class="chart-card">
+                    <h3>Statistik Penjualan Bulanan</h3>
+                    <canvas id="salesChart"></canvas>
+                </div>
+                
+                <div class="chart-card">
+                    <h3>Top Kategori Produk</h3>
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="recent-orders">
+                <h3>Pesanan Terbaru</h3>
+                <div class="table-responsive">
+                    <table class="data-table" id="recentOrdersTable">
+                        <thead>
+                            <tr><th>ID Pesanan</th><th>Pelanggan</th><th>Tanggal</th><th>Total</th><th>Status</th><th>Aksi</th></tr>
+                        </thead>
+                        <tbody id="recentOrdersBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div id="footer-container"></div>
+    </div>
+    
+    <script>
+        // Check admin login
+        if(localStorage.getItem('adminLoggedIn') !== 'true') {
+            window.location.href = 'login.html';
+        }
+        
+        document.getElementById('adminName').textContent = localStorage.getItem('adminUsername') || 'Admin';
+        
+        // Load data
+        function loadDashboardData() {
+            // Load orders
+            const orders = JSON.parse(localStorage.getItem('orders')) || [];
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const products = JSON.parse(localStorage.getItem('adminProducts')) || [];
+            
+            document.getElementById('totalOrders').textContent = orders.length;
+            document.getElementById('totalUsers').textContent = users.length + 5; // +5 default users
+            document.getElementById('totalProducts').textContent = products.length;
+            
+            // Calculate revenue
+            let revenue = 0;
+            orders.forEach(order => {
+                if(order.paymentStatus === 'paid') {
+                    revenue += order.total || 0;
+                }
+            });
+            document.getElementById('totalRevenue').textContent = `Rp ${revenue.toLocaleString()}`;
+            
+            // Load recent orders
+            const recentOrders = orders.slice(-5).reverse();
+            const tbody = document.getElementById('recentOrdersBody');
+            tbody.innerHTML = recentOrders.map(order => `
+                <tr>
+                    <td>${order.orderId}</td>
+                    <td>${order.shipping?.receiverName || 'Customer'}</td>
+                    <td>${new Date(order.date).toLocaleDateString()}</td>
+                    <td>Rp ${(order.total || 0).toLocaleString()}</td>
+                    <td><span class="status-badge ${order.orderStatus}">${order.orderStatus}</span></td>
+                    <td><button onclick="viewOrder('${order.orderId}')" class="btn-sm">Detail</button></td>
+                </tr>
+            `).join('');
+        }
+        
+        // Charts
+        function initCharts() {
+            // Sales chart
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
+                    datasets: [{
+                        label: 'Penjualan',
+                        data: [12, 19, 15, 17, 14, 20, 25, 22, 28, 30, 35, 42],
+                        borderColor: '#4F46E5',
+                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+            
+            // Category chart
+            const ctx2 = document.getElementById('categoryChart').getContext('2d');
+            new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Pakaian Pria', 'Pakaian Wanita', 'Pakaian Anak', 'Aksesoris'],
+                    datasets: [{
+                        data: [35, 40, 15, 10],
+                        backgroundColor: ['#4F46E5', '#10B981', '#F59E0B', '#EF4444']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+        
+        function viewOrder(orderId) {
+            alert(`Detail pesanan ${orderId} akan ditampilkan`);
+        }
+        
+        // Load components
+        Promise.all([
+            fetch('Components/sidebar-admin.html').then(res => res.text()),
+            fetch('Components/header.html').then(res => res.text()),
+            fetch('Components/footer.html').then(res => res.text())
+        ]).then(([sidebar, header, footer]) => {
+            document.getElementById('sidebar-container').innerHTML = sidebar;
+            document.getElementById('header-container').innerHTML = header;
+            document.getElementById('footer-container').innerHTML = footer;
+            loadDashboardData();
+            initCharts();
+        });
+    </script>
+</body>
+</html>

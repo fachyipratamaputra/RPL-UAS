@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambah Produk - Admin Toko Baju Online</title>
+    <link rel="stylesheet" href="Assets/css/global.css">
+    <link rel="stylesheet" href="Assets/css/admin/add-product.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div id="sidebar-container"></div>
+    
+    <div class="main-content">
+        <div id="header-container"></div>
+        
+        <div class="form-container">
+            <div class="page-header">
+                <h1><i class="fas fa-plus-circle"></i> Tambah Produk Baru</h1>
+                <a href="products.html" class="btn-secondary"><i class="fas fa-arrow-left"></i> Kembali</a>
+            </div>
+            
+            <form id="addProductForm" class="admin-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="name">Nama Produk <span class="required">*</span></label>
+                        <input type="text" id="name" required placeholder="Masukkan nama produk">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="category">Kategori <span class="required">*</span></label>
+                        <select id="category" required>
+                            <option value="">Pilih Kategori</option>
+                            <option value="pria">Pakaian Pria</option>
+                            <option value="wanita">Pakaian Wanita</option>
+                            <option value="anak">Pakaian Anak</option>
+                            <option value="aksesoris">Aksesoris</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="price">Harga (Rp) <span class="required">*</span></label>
+                        <input type="number" id="price" required placeholder="0">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="stock">Stok <span class="required">*</span></label>
+                        <input type="number" id="stock" required placeholder="0">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="image">URL Gambar</label>
+                        <input type="url" id="image" placeholder="https://example.com/image.jpg">
+                        <small>Masukkan URL gambar produk</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <select id="status">
+                            <option value="active">Aktif</option>
+                            <option value="inactive">Nonaktif</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">Deskripsi Produk</label>
+                    <textarea id="description" rows="5" placeholder="Deskripsikan produk secara lengkap"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Ukuran yang Tersedia</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" value="S"> S</label>
+                        <label><input type="checkbox" value="M"> M</label>
+                        <label><input type="checkbox" value="L"> L</label>
+                        <label><input type="checkbox" value="XL"> XL</label>
+                        <label><input type="checkbox" value="XXL"> XXL</label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Warna yang Tersedia</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" value="Hitam"> Hitam</label>
+                        <label><input type="checkbox" value="Putih"> Putih</label>
+                        <label><input type="checkbox" value="Merah"> Merah</label>
+                        <label><input type="checkbox" value="Biru"> Biru</label>
+                        <label><input type="checkbox" value="Hijau"> Hijau</label>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Simpan Produk</button>
+                    <button type="reset" class="btn-secondary"><i class="fas fa-undo"></i> Reset</button>
+                </div>
+            </form>
+        </div>
+        
+        <div id="footer-container"></div>
+    </div>
+    
+    <script>
+        document.getElementById('addProductForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const products = JSON.parse(localStorage.getItem('adminProducts')) || [];
+            const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+            
+            const selectedSizes = Array.from(document.querySelectorAll('input[type="checkbox"][value]')).filter(cb => cb.checked && ['S','M','L','XL','XXL'].includes(cb.value)).map(cb => cb.value);
+            const selectedColors = Array.from(document.querySelectorAll('input[type="checkbox"][value]')).filter(cb => cb.checked && ['Hitam','Putih','Merah','Biru','Hijau'].includes(cb.value)).map(cb => cb.value);
+            
+            const newProduct = {
+                id: newId,
+                name: document.getElementById('name').value,
+                category: document.getElementById('category').value,
+                price: parseInt(document.getElementById('price').value),
+                stock: parseInt(document.getElementById('stock').value),
+                image: document.getElementById('image').value || 'https://via.placeholder.com/300',
+                status: document.getElementById('status').value,
+                description: document.getElementById('description').value,
+                sizes: selectedSizes,
+                colors: selectedColors
+            };
+            
+            products.push(newProduct);
+            localStorage.setItem('adminProducts', JSON.stringify(products));
+            
+            alert('Produk berhasil ditambahkan!');
+            window.location.href = 'products.html';
+        });
+        
+        // Load components
+        Promise.all([
+            fetch('Components/sidebar-admin.html').then(res => res.text()),
+            fetch('Components/header.html').then(res => res.text()),
+            fetch('Components/footer.html').then(res => res.text())
+        ]).then(([sidebar, header, footer]) => {
+            document.getElementById('sidebar-container').innerHTML = sidebar;
+            document.getElementById('header-container').innerHTML = header;
+            document.getElementById('footer-container').innerHTML = footer;
+        });
+    </script>
+</body>
+</html>

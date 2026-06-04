@@ -1,0 +1,251 @@
+/* ========================================
+   DISCOUNTS MANAGEMENT STYLES
+   Terhubung dengan: pages/admin/discounts.html
+   Dependensi: global.css, sidebar-admin.css
+   ======================================== */
+
+.discounts-container {
+    padding: 30px;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.page-header h1 {
+    font-size: 28px;
+    color: #1f2937;
+}
+
+/* Section Headers */
+.active-promos h2,
+.expired-promos h2 {
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: #1f2937;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #4F46E5;
+    display: inline-block;
+}
+
+.active-promos {
+    margin-bottom: 40px;
+}
+
+/* Discounts Grid */
+.discounts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 25px;
+    margin-top: 20px;
+}
+
+.discount-card {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+    border: 1px solid #e5e7eb;
+}
+
+.discount-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+}
+
+.discount-card.expired {
+    opacity: 0.7;
+    background: #f9fafb;
+}
+
+.discount-badge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #4F46E5, #7C3AED);
+    color: white;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.discount-card.expired .discount-badge {
+    background: #9ca3af;
+}
+
+.discount-card h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #1f2937;
+    padding-right: 80px;
+}
+
+.discount-code {
+    display: inline-block;
+    background: #f3f4f6;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 14px;
+    font-weight: 600;
+    color: #4F46E5;
+    margin-bottom: 15px;
+}
+
+.discount-card p {
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.discount-card p i {
+    width: 20px;
+    margin-right: 8px;
+    color: #4F46E5;
+}
+
+.discount-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.btn-toggle,
+.btn-delete,
+.btn-activate {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-toggle {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.btn-toggle:hover {
+    background: #fde68a;
+}
+
+.btn-delete {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.btn-delete:hover {
+    background: #fecaca;
+}
+
+.btn-activate {
+    background: #d1fae5;
+    color: #059669;
+}
+
+.btn-activate:hover {
+    background: #a7f3d0;
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    animation: fadeIn 0.3s;
+}
+
+.modal-content {
+    background: white;
+    margin: 50px auto;
+    max-width: 500px;
+    width: 90%;
+    border-radius: 20px;
+    animation: slideDown 0.3s;
+}
+
+.modal-header {
+    padding: 20px 25px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    font-size: 20px;
+    color: #1f2937;
+}
+
+.modal-header .close {
+    font-size: 28px;
+    cursor: pointer;
+    color: #9ca3af;
+    transition: color 0.3s;
+}
+
+.modal-header .close:hover {
+    color: #ef4444;
+}
+
+.modal-content form {
+    padding: 25px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .discounts-container {
+        padding: 20px;
+    }
+    
+    .discounts-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .discount-card {
+        padding: 15px;
+    }
+    
+    .modal-content {
+        margin: 30px auto;
+        width: 95%;
+    }
+    
+    .modal-content form {
+        padding: 20px;
+    }
+}

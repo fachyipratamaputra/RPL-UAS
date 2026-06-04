@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <nav class="main-navbar">
+        <div class="container">
+            <div class="navbar-content">
+                <div class="logo">
+                    <a href="../../index.html">
+                        <i class="fas fa-tshirt"></i>
+                        <span>Toko Baju <span class="highlight">Online</span></span>
+                    </a>
+                </div>
+                
+                <div class="search-bar">
+                    <form id="searchForm" action="../../pages/customer/products.html" method="GET">
+                        <input type="text" name="search" placeholder="Cari produk...">
+                        <button type="submit"><i class="fas fa-search"></i></button>
+                    </form>
+                </div>
+                
+                <div class="nav-icons">
+                    <a href="../../pages/customer/home.html" class="nav-icon">
+                        <i class="fas fa-home"></i>
+                        <span>Beranda</span>
+                    </a>
+                    <a href="../../pages/customer/products.html" class="nav-icon">
+                        <i class="fas fa-store"></i>
+                        <span>Produk</span>
+                    </a>
+                    <a href="../../pages/customer/cart.html" class="nav-icon cart-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Keranjang</span>
+                        <span class="cart-count" id="cartCount">0</span>
+                    </a>
+                    <a href="../../pages/customer/order-history.html" class="nav-icon">
+                        <i class="fas fa-history"></i>
+                        <span>Pesanan</span>
+                    </a>
+                    <div class="nav-icon user-menu" id="userMenu">
+                        <i class="fas fa-user"></i>
+                        <span>Akun</span>
+                        <div class="dropdown-menu" id="dropdownMenu">
+                            <a href="../../pages/customer/profile.html"><i class="fas fa-id-card"></i> Profil Saya</a>
+                            <a href="../../pages/customer/order-history.html"><i class="fas fa-box"></i> Pesanan Saya</a>
+                            <hr>
+                            <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div class="mobile-menu" id="mobileMenu">
+            <a href="../../pages/customer/home.html"><i class="fas fa-home"></i> Beranda</a>
+            <a href="../../pages/customer/products.html"><i class="fas fa-store"></i> Produk</a>
+            <a href="../../pages/customer/cart.html"><i class="fas fa-shopping-cart"></i> Keranjang</a>
+            <a href="../../pages/customer/order-history.html"><i class="fas fa-history"></i> Pesanan</a>
+            <a href="../../pages/customer/profile.html"><i class="fas fa-user"></i> Profil Saya</a>
+            <a href="#" id="mobileLogoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </nav>
+
+    <style>
+        .main-navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            gap: 20px;
+        }
+        .logo a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        .logo i {
+            color: #4F46E5;
+            font-size: 28px;
+        }
+        .logo .highlight {
+            color: #4F46E5;
+        }
+        .search-bar {
+            flex: 1;
+            max-width: 500px;
+        }
+        .search-bar form {
+            display: flex;
+            gap: 0;
+        }
+        .search-bar input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-right: none;
+            border-radius: 25px 0 0 25px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .search-bar input:focus {
+            border-color: #4F46E5;
+        }
+        .search-bar button {
+            padding: 10px 20px;
+            background: #4F46E5;
+            border: none;
+            border-radius: 0 25px 25px 0;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .search-bar button:hover {
+            background: #4338ca;
+        }
+        .nav-icons {
+            display: flex;
+            gap: 20px;
+        }
+        .nav-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #666;
+            font-size: 12px;
+            position: relative;
+            transition: color 0.3s;
+        }
+        .nav-icon i {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+        .nav-icon:hover {
+            color: #4F46E5;
+        }
+        .cart-icon {
+            position: relative;
+        }
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .user-menu {
+            position: relative;
+            cursor: pointer;
+        }
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            min-width: 180px;
+            display: none;
+            z-index: 100;
+            margin-top: 10px;
+        }
+        .user-menu:hover .dropdown-menu {
+            display: block;
+        }
+        .dropdown-menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            text-decoration: none;
+            color: #333;
+            transition: background 0.3s;
+        }
+        .dropdown-menu a:hover {
+            background: #f5f5f5;
+        }
+        .dropdown-menu hr {
+            margin: 5px 0;
+            border: none;
+            border-top: 1px solid #e0e0e0;
+        }
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #333;
+        }
+        .mobile-menu {
+            display: none;
+            flex-direction: column;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            padding: 10px 0;
+        }
+        .mobile-menu a {
+            padding: 12px 20px;
+            text-decoration: none;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        @media (max-width: 768px) {
+            .navbar-content {
+                flex-wrap: wrap;
+            }
+            .search-bar {
+                order: 3;
+                max-width: 100%;
+                margin-top: 10px;
+            }
+            .nav-icons {
+                display: none;
+            }
+            .mobile-menu-btn {
+                display: block;
+            }
+            .mobile-menu.show {
+                display: flex;
+            }
+        }
+    </style>
+
+    <script>
+        // Update cart count
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const cartCountElements = document.querySelectorAll('.cart-count');
+            cartCountElements.forEach(el => {
+                if(el) el.textContent = totalItems;
+                if(totalItems === 0 && el) el.style.display = 'none';
+                else if(el) el.style.display = 'flex';
+            });
+        }
+        
+        // Check login status
+        function updateUserMenu() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            const userMenu = document.getElementById('userMenu');
+            if(userMenu) {
+                if(!isLoggedIn) {
+                    userMenu.innerHTML = '<i class="fas fa-sign-in-alt"></i><span>Login</span>';
+                    userMenu.onclick = () => window.location.href = '../../pages/customer/login.html';
+                }
+            }
+        }
+        
+        // Mobile menu toggle
+        const mobileBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        if(mobileBtn && mobileMenu) {
+            mobileBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('show');
+            });
+        }
+        
+        // Logout functionality
+        const logoutBtn = document.getElementById('logoutBtn');
+        const mobileLogoutBtn = document.getElementById('mobileLogoutBtn');
+        function handleLogout(e) {
+            e.preventDefault();
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('userEmail');
+            localStorage.removeItem('userFullname');
+            window.location.href = '../../index.html';
+        }
+        if(logoutBtn) logoutBtn.addEventListener('click', handleLogout);
+        if(mobileLogoutBtn) mobileLogoutBtn.addEventListener('click', handleLogout);
+        
+        // Initialize
+        updateCartCount();
+        updateUserMenu();
+        
+        // Listen for cart changes
+        window.addEventListener('storage', updateCartCount);
+    </script>
+</body>
+</html>

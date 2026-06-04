@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Toko Baju Online</title>
+    <link rel="stylesheet" href="Assets/css/global.css">
+    <link rel="stylesheet" href="Assets/css/customer/checkout.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div id="header-container"></div>
+    <div id="navbar-container"></div>
+    
+    <main class="checkout-main">
+        <div class="container">
+            <h1>Checkout</h1>
+            <div class="checkout-layout">
+                <div class="checkout-form">
+                    <form id="checkoutForm">
+                        <div class="form-section">
+                            <h3>Informasi Pengiriman</h3>
+                            <div class="form-group">
+                                <label>Nama Penerima</label>
+                                <input type="text" id="receiverName" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Alamat Lengkap</label>
+                                <textarea id="address" rows="3" required></textarea>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Provinsi</label>
+                                    <select id="province" required>
+                                        <option value="">Pilih Provinsi</option>
+                                        <option>DKI Jakarta</option>
+                                        <option>Jawa Barat</option>
+                                        <option>Jawa Tengah</option>
+                                        <option>Jawa Timur</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Kota/Kabupaten</label>
+                                    <input type="text" id="city" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Kode Pos</label>
+                                    <input type="text" id="postalCode" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>No. Telepon</label>
+                                    <input type="tel" id="phone" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h3>Metode Pengiriman</h3>
+                            <div class="shipping-options">
+                                <label class="shipping-option">
+                                    <input type="radio" name="shipping" value="jne" checked>
+                                    <div>
+                                        <strong>JNE Reguler</strong>
+                                        <span>Estimasi 3-5 hari</span>
+                                        <span>Rp 20.000</span>
+                                    </div>
+                                </label>
+                                <label class="shipping-option">
+                                    <input type="radio" name="shipping" value="tiki">
+                                    <div>
+                                        <strong>TIKI Express</strong>
+                                        <span>Estimasi 2-4 hari</span>
+                                        <span>Rp 25.000</span>
+                                    </div>
+                                </label>
+                                <label class="shipping-option">
+                                    <input type="radio" name="shipping" value="pos">
+                                    <div>
+                                        <strong>POS Indonesia</strong>
+                                        <span>Estimasi 4-7 hari</span>
+                                        <span>Rp 15.000</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="order-summary" id="orderSummary"></div>
+            </div>
+        </div>
+    </main>
+    
+    <div id="footer-container"></div>
+    
+    <script>
+        const products = {
+            1: {name: 'Kaos Polos Premium', price: 150000},
+            2: {name: 'Kemeja Flanel Pria', price: 250000},
+            3: {name: 'Dress Wanita Elegan', price: 350000},
+            4: {name: 'Jaket Denim', price: 450000}
+        };
+        
+        function loadOrderSummary() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            let subtotal = 0;
+            let items = '';
+            
+            cart.forEach(item => {
+                const product = products[item.id];
+                const itemTotal = product.price * item.quantity;
+                subtotal += itemTotal;
+                items += `<div class="order-item">
+                    <span>${product.name} x ${item.quantity}</span>
+                    <span>Rp ${itemTotal.toLocaleString()}</span>
+                </div>`;
+            });
+            
+            const shipping = 20000;
+            const total = subtotal + shipping;
+            
+            document.getElementById('orderSummary').innerHTML = `
+                <div class="summary-card">
+                    <h3>Pesanan Anda</h3>
+                    <div class="order-items">${items}</div>
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <span>Rp ${subtotal.toLocaleString()}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Ongkos Kirim</span>
+                        <span>Rp ${shipping.toLocaleString()}</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Total</span>
+                        <span>Rp ${total.toLocaleString()}</span>
+                    </div>
+                    <button class="btn-place-order" onclick="placeOrder()">Buat Pesanan</button>
+                </div>
+            `;
+        }
+        
+        function placeOrder() {
+            const receiverName = document.getElementById('receiverName').value;
+            const address = document.getElementById('address').value;
+            const phone = document.getElementById('phone').value;
+            
+            if(!receiverName || !address || !phone) {
+                alert('Harap lengkapi informasi pengiriman!');
+                return;
+            }
+            
+            const orderData = {
+                orderId: 'ORD-' + Date.now(),
+                date: new Date().toISOString(),
+                items: JSON.parse(localStorage.getItem('cart')) || [],
+                shipping: {
+                    receiverName,
+                    address,
+                    phone
+                },
+                total: calculateTotal()
+            };
+            
+            let orders = JSON.parse(localStorage.getItem('orders')) || [];
+            orders.push(orderData);
+            localStorage.setItem('orders', JSON.stringify(orders));
+            localStorage.setItem('currentOrder', JSON.stringify(orderData));
+            
+            localStorage.removeItem('cart');
+            window.location.href = 'payment.html';
+        }
+        
+        function calculateTotal() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            let subtotal = 0;
+            cart.forEach(item => {
+                const product = products[item.id];
+                subtotal += product.price * item.quantity;
+            });
+            return subtotal + 20000;
+        }
+        
+        // Load components
+        Promise.all([
+            fetch('Components/header.html').then(res => res.text()),
+            fetch('Components/navbar.html').then(res => res.text()),
+            fetch('Components/footer.html').then(res => res.text())
+        ]).then(([header, navbar, footer]) => {
+            document.getElementById('header-container').innerHTML = header;
+            document.getElementById('navbar-container').innerHTML = navbar;
+            document.getElementById('footer-container').innerHTML = footer;
+            loadOrderSummary();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Produk - Admin Toko Baju Online</title>
+    <link rel="stylesheet" href="../../assets/css/global/global.css">
+    <link rel="stylesheet" href="../../assets/css/admin/products.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div id="sidebar-container"></div>
+    
+    <div class="main-content">
+        <div id="header-container"></div>
+        
+        <div class="products-admin-container">
+            <div class="page-header">
+                <h1>Kelola Produk</h1>
+                <a href="add-product.html" class="btn-primary"><i class="fas fa-plus"></i> Tambah Produk</a>
+            </div>
+            
+            <div class="filters-bar">
+                <input type="text" id="searchProduct" placeholder="Cari produk..." class="search-input">
+                <select id="categoryFilter" class="filter-select">
+                    <option value="all">Semua Kategori</option>
+                    <option value="pria">Pakaian Pria</option>
+                    <option value="wanita">Pakaian Wanita</option>
+                    <option value="anak">Pakaian Anak</option>
+                    <option value="aksesoris">Aksesoris</option>
+                </select>
+                <select id="stockFilter" class="filter-select">
+                    <option value="all">Semua Stok</option>
+                    <option value="low">Stok Menipis (< 10)</option>
+                    <option value="out">Habis</option>
+                </select>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="data-table" id="productsTable">
+                    <thead>
+                        <tr><th>ID</th><th>Gambar</th><th>Nama Produk</th><th>Kategori</th><th>Harga</th><th>Stok</th><th>Status</th><th>Aksi</th></tr>
+                    </thead>
+                    <tbody id="productsBody"></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div id="footer-container"></div>
+    </div>
+    
+    <script>
+        // Default products data
+        let products = JSON.parse(localStorage.getItem('adminProducts')) || [
+            {id: 1, name: 'Kaos Polos Premium', category: 'pria', price: 150000, stock: 50, image: 'https://via.placeholder.com/100', status: 'active'},
+            {id: 2, name: 'Kemeja Flanel Pria', category: 'pria', price: 250000, stock: 30, image: 'https://via.placeholder.com/100', status: 'active'},
+            {id: 3, name: 'Dress Wanita Elegan', category: 'wanita', price: 350000, stock: 25, image: 'https://via.placeholder.com/100', status: 'active'},
+            {id: 4, name: 'Jaket Denim', category: 'pria', price: 450000, stock: 15, image: 'https://via.placeholder.com/100', status: 'active'},
+            {id: 5, name: 'Baju Anak Lucu', category: 'anak', price: 120000, stock: 40, image: 'https://via.placeholder.com/100', status: 'active'},
+            {id: 6, name: 'Topi Fashion', category: 'aksesoris', price: 75000, stock: 100, image: 'https://via.placeholder.com/100', status: 'active'}
+        ];
+        
+        function saveProducts() {
+            localStorage.setItem('adminProducts', JSON.stringify(products));
+        }
+        
+        function renderProducts() {
+            const searchTerm = document.getElementById('searchProduct').value.toLowerCase();
+            const category = document.getElementById('categoryFilter').value;
+            const stockFilter = document.getElementById('stockFilter').value;
+            
+            let filtered = products.filter(p => {
+                const matchSearch = p.name.toLowerCase().includes(searchTerm);
+                const matchCategory = category === 'all' || p.category === category;
+                let matchStock = true;
+                if(stockFilter === 'low') matchStock = p.stock < 10 && p.stock > 0;
+                if(stockFilter === 'out') matchStock = p.stock === 0;
+                return matchSearch && matchCategory && matchStock;
+            });
+            
+            const tbody = document.getElementById('productsBody');
+            tbody.innerHTML = filtered.map(product => `
+                <tr>
+                    <td>${product.id}</td>
+                    <td><img src="${product.image}" alt="${product.name}" style="width: 50px; height: 50px; object-fit: cover;"></td>
+                    <td>${product.name}</td>
+                    <td>${getCategoryName(product.category)}</td>
+                    <td>Rp ${product.price.toLocaleString()}</td>
+                    <td class="${product.stock < 10 ? 'stock-low' : ''}">${product.stock}</td>
+                    <td><span class="status-badge ${product.status}">${product.status === 'active' ? 'Aktif' : 'Nonaktif'}</span></td>
+                    <td class="actions">
+                        <a href="edit-product.html?id=${product.id}" class="btn-edit"><i class="fas fa-edit"></i></a>
+                        <button onclick="toggleProductStatus(${product.id})" class="btn-toggle"><i class="fas ${product.status === 'active' ? 'fa-ban' : 'fa-check'}"></i></button>
+                        <button onclick="deleteProduct(${product.id})" class="btn-delete"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        function getCategoryName(category) {
+            const categories = {pria: 'Pakaian Pria', wanita: 'Pakaian Wanita', anak: 'Pakaian Anak', aksesoris: 'Aksesoris'};
+            return categories[category] || category;
+        }
+        
+        function toggleProductStatus(id) {
+            const product = products.find(p => p.id === id);
+            if(product) {
+                product.status = product.status === 'active' ? 'inactive' : 'active';
+                saveProducts();
+                renderProducts();
+                alert(`Status produk ${product.name} telah diubah`);
+            }
+        }
+        
+        function deleteProduct(id) {
+            if(confirm('Yakin ingin menghapus produk ini?')) {
+                products = products.filter(p => p.id !== id);
+                saveProducts();
+                renderProducts();
+                alert('Produk berhasil dihapus');
+            }
+        }
+        
+        // Event listeners
+        document.getElementById('searchProduct').addEventListener('input', renderProducts);
+        document.getElementById('categoryFilter').addEventListener('change', renderProducts);
+        document.getElementById('stockFilter').addEventListener('change', renderProducts);
+        
+        // Load components
+        Promise.all([
+            fetch('../../components/sidebar-admin.html').then(res => res.text()),
+            fetch('../../components/header.html').then(res => res.text()),
+            fetch('../../components/footer.html').then(res => res.text())
+        ]).then(([sidebar, header, footer]) => {
+            document.getElementById('sidebar-container').innerHTML = sidebar;
+            document.getElementById('header-container').innerHTML = header;
+            document.getElementById('footer-container').innerHTML = footer;
+            saveProducts();
+            renderProducts();
+        });
+    </script>
+</body>
+</html>

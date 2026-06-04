@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produk - Toko Baju Online</title>
+    <link rel="stylesheet" href="../../assets/css/global/global.css">
+    <link rel="stylesheet" href="../../assets/css/customer/products.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div id="header-container"></div>
+    <div id="navbar-container"></div>
+    
+    <main class="products-main">
+        <div class="container">
+            <div class="products-layout">
+                <!-- Sidebar Filter -->
+                <aside class="filters-sidebar">
+                    <h3>Filter</h3>
+                    <div class="filter-group">
+                        <label>Kategori</label>
+                        <select id="categoryFilter">
+                            <option value="all">Semua</option>
+                            <option value="wanita">Wanita</option>
+                            <option value="pria">Pria</option>
+                            <option value="anak">Anak</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Harga</label>
+                        <input type="range" id="priceRange" min="0" max="1000000" step="50000">
+                        <span id="priceValue">Rp 0 - Rp 1.000.000</span>
+                    </div>
+                    <div class="filter-group">
+                        <label>Ukuran</label>
+                        <div class="size-options">
+                            <label><input type="checkbox" value="S"> S</label>
+                            <label><input type="checkbox" value="M"> M</label>
+                            <label><input type="checkbox" value="L"> L</label>
+                            <label><input type="checkbox" value="XL"> XL</label>
+                        </div>
+                    </div>
+                </aside>
+                
+                <!-- Products Grid -->
+                <div class="products-content">
+                    <div class="products-header">
+                        <h2>Semua Produk</h2>
+                        <select id="sortBy">
+                            <option value="default">Urutkan</option>
+                            <option value="price_asc">Termurah</option>
+                            <option value="price_desc">Termahal</option>
+                            <option value="name_asc">Nama A-Z</option>
+                        </select>
+                    </div>
+                    <div class="products-grid" id="productsGrid"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <div id="footer-container"></div>
+    
+    <script>
+        const products = [
+            {id: 1, name: 'Kaos Polos Wanita', category: 'wanita', price: 150000, size: ['S','M','L'], image: 'https://via.placeholder.com/300'},
+            {id: 2, name: 'Kemeja Pria Casual', category: 'pria', price: 250000, size: ['M','L','XL'], image: 'https://via.placeholder.com/300'},
+            {id: 3, name: 'Dress Modern', category: 'wanita', price: 350000, size: ['S','M'], image: 'https://via.placeholder.com/300'},
+            {id: 4, name: 'Jaket Denim Pria', category: 'pria', price: 450000, size: ['L','XL'], image: 'https://via.placeholder.com/300'},
+            {id: 5, name: 'Baju Anak Lucu', category: 'anak', price: 120000, size: ['S','M'], image: 'https://via.placeholder.com/300'},
+            {id: 6, name: 'Topi Fashion', category: 'aksesoris', price: 75000, size: ['All'], image: 'https://via.placeholder.com/300'}
+        ];
+        
+        let currentProducts = [...products];
+        
+        function renderProducts() {
+            const grid = document.getElementById('productsGrid');
+            grid.innerHTML = currentProducts.map(product => `
+                <div class="product-card">
+                    <img src="${product.image}" alt="${product.name}">
+                    <h3>${product.name}</h3>
+                    <p class="price">Rp ${product.price.toLocaleString()}</p>
+                    <div class="product-actions">
+                        <button onclick="addToCart(${product.id})"><i class="fas fa-cart-plus"></i> Keranjang</button>
+                        <a href="product-detail.html?id=${product.id}">Detail</a>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function addToCart(productId) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const existing = cart.find(item => item.id === productId);
+            if(existing) {
+                existing.quantity++;
+            } else {
+                cart.push({id: productId, quantity: 1});
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            alert('Produk ditambahkan ke keranjang!');
+        }
+        
+        // Filter and sort logic
+        document.getElementById('categoryFilter').addEventListener('change', (e) => {
+            const category = e.target.value;
+            currentProducts = category === 'all' ? [...products] : products.filter(p => p.category === category);
+            renderProducts();
+        });
+        
+        document.getElementById('sortBy').addEventListener('change', (e) => {
+            const sort = e.target.value;
+            if(sort === 'price_asc') currentProducts.sort((a,b) => a.price - b.price);
+            if(sort === 'price_desc') currentProducts.sort((a,b) => b.price - a.price);
+            if(sort === 'name_asc') currentProducts.sort((a,b) => a.name.localeCompare(b.name));
+            renderProducts();
+        });
+        
+        document.getElementById('priceRange').addEventListener('input', (e) => {
+            const maxPrice = parseInt(e.target.value);
+            document.getElementById('priceValue').textContent = `Rp 0 - Rp ${maxPrice.toLocaleString()}`;
+            currentProducts = products.filter(p => p.price <= maxPrice);
+            renderProducts();
+        });
+        
+        // Load components
+        Promise.all([
+            fetch('../../components/header.html').then(res => res.text()),
+            fetch('../../components/navbar.html').then(res => res.text()),
+            fetch('../../components/footer.html').then(res => res.text())
+        ]).then(([header, navbar, footer]) => {
+            document.getElementById('header-container').innerHTML = header;
+            document.getElementById('navbar-container').innerHTML = navbar;
+            document.getElementById('footer-container').innerHTML = footer;
+            renderProducts();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Produk - Admin Toko Baju Online</title>
+    <link rel="stylesheet" href="../../assets/css/global/global.css">
+    <link rel="stylesheet" href="../../assets/css/admin/edit-product.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div id="sidebar-container"></div>
+    
+    <div class="main-content">
+        <div id="header-container"></div>
+        
+        <div class="form-container">
+            <div class="page-header">
+                <h1><i class="fas fa-edit"></i> Edit Produk</h1>
+                <a href="products.html" class="btn-secondary"><i class="fas fa-arrow-left"></i> Kembali</a>
+            </div>
+            
+            <form id="editProductForm" class="admin-form">
+                <input type="hidden" id="productId">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="name">Nama Produk <span class="required">*</span></label>
+                        <input type="text" id="name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="category">Kategori <span class="required">*</span></label>
+                        <select id="category" required>
+                            <option value="pria">Pakaian Pria</option>
+                            <option value="wanita">Pakaian Wanita</option>
+                            <option value="anak">Pakaian Anak</option>
+                            <option value="aksesoris">Aksesoris</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="price">Harga (Rp) <span class="required">*</span></label>
+                        <input type="number" id="price" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="stock">Stok <span class="required">*</span></label>
+                        <input type="number" id="stock" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="image">URL Gambar</label>
+                        <input type="url" id="image">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <select id="status">
+                            <option value="active">Aktif</option>
+                            <option value="inactive">Nonaktif</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">Deskripsi Produk</label>
+                    <textarea id="description" rows="5"></textarea>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Update Produk</button>
+                    <button type="button" onclick="window.location.href='products.html'" class="btn-secondary">Batal</button>
+                </div>
+            </form>
+        </div>
+        
+        <div id="footer-container"></div>
+    </div>
+    
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = parseInt(urlParams.get('id'));
+        
+        function loadProductData() {
+            const products = JSON.parse(localStorage.getItem('adminProducts')) || [];
+            const product = products.find(p => p.id === productId);
+            
+            if(product) {
+                document.getElementById('productId').value = product.id;
+                document.getElementById('name').value = product.name;
+                document.getElementById('category').value = product.category;
+                document.getElementById('price').value = product.price;
+                document.getElementById('stock').value = product.stock;
+                document.getElementById('image').value = product.image || '';
+                document.getElementById('status').value = product.status;
+                document.getElementById('description').value = product.description || '';
+            } else {
+                alert('Produk tidak ditemukan!');
+                window.location.href = 'products.html';
+            }
+        }
+        
+        document.getElementById('editProductForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const products = JSON.parse(localStorage.getItem('adminProducts')) || [];
+            const index = products.findIndex(p => p.id === productId);
+            
+            if(index !== -1) {
+                products[index] = {
+                    ...products[index],
+                    name: document.getElementById('name').value,
+                    category: document.getElementById('category').value,
+                    price: parseInt(document.getElementById('price').value),
+                    stock: parseInt(document.getElementById('stock').value),
+                    image: document.getElementById('image').value || products[index].image,
+                    status: document.getElementById('status').value,
+                    description: document.getElementById('description').value
+                };
+                
+                localStorage.setItem('adminProducts', JSON.stringify(products));
+                alert('Produk berhasil diupdate!');
+                window.location.href = 'products.html';
+            }
+        });
+        
+        // Load components
+        Promise.all([
+            fetch('../../components/sidebar-admin.html').then(res => res.text()),
+            fetch('../../components/header.html').then(res => res.text()),
+            fetch('../../components/footer.html').then(res => res.text())
+        ]).then(([sidebar, header, footer]) => {
+            document.getElementById('sidebar-container').innerHTML = sidebar;
+            document.getElementById('header-container').innerHTML = header;
+            document.getElementById('footer-container').innerHTML = footer;
+            loadProductData();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Diskon - Admin Toko Baju Online</title>
+    <link rel="stylesheet" href="Assets/css/global.css">
+    <link rel="stylesheet" href="Assets/css/admin/discounts.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div id="sidebar-container"></div>
+    
+    <div class="main-content">
+        <div id="header-container"></div>
+        
+        <div class="discounts-container">
+            <div class="page-header">
+                <h1>Kelola Diskon & Promo</h1>
+                <button onclick="showAddDiscountModal()" class="btn-primary"><i class="fas fa-plus"></i> Tambah Diskon</button>
+            </div>
+            
+            <div class="active-promos">
+                <h2>Promo Aktif</h2>
+                <div id="activeDiscounts" class="discounts-grid"></div>
+            </div>
+            
+            <div class="expired-promos">
+                <h2>Promo Berakhir</h2>
+                <div id="expiredDiscounts" class="discounts-grid"></div>
+            </div>
+        </div>
+        
+        <div id="footer-container"></div>
+    </div>
+    
+    <!-- Modal Tambah Diskon -->
+    <div id="discountModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Tambah Diskon Baru</h3>
+                <span class="close">&times;</span>
+            </div>
+            <form id="discountForm">
+                <div class="form-group">
+                    <label>Nama Promo</label>
+                    <input type="text" id="promoName" required>
+                </div>
+                <div class="form-group">
+                    <label>Kode Promo</label>
+                    <input type="text" id="promoCode" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Diskon (%)</label>
+                        <input type="number" id="discountPercent" min="0" max="100" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Min. Belanja (Rp)</label>
+                        <input type="number" id="minPurchase" value="0">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Mulai Berlaku</label>
+                        <input type="date" id="startDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Berakhir</label>
+                        <input type="date" id="endDate" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Kategori Produk</label>
+                    <select id="category">
+                        <option value="all">Semua Kategori</option>
+                        <option value="pria">Pakaian Pria</option>
+                        <option value="wanita">Pakaian Wanita</option>
+                        <option value="anak">Pakaian Anak</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary">Simpan Diskon</button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        let discounts = JSON.parse(localStorage.getItem('discounts')) || [
+            {id: 1, name: 'Diskon Tahun Baru', code: 'NEWYEAR20', discount: 20, minPurchase: 100000, startDate: '2024-01-01', endDate: '2024-01-31', category: 'all', active: true},
+            {id: 2, name: 'Diskon Spesial', code: 'SPECIAL10', discount: 10, minPurchase: 50000, startDate: '2024-02-01', endDate: '2024-02-28', category: 'all', active: true},
+            {id: 3, name: 'Diskon Wanita', code: 'WANITA25', discount: 25, minPurchase: 150000, startDate: '2024-01-15', endDate: '2024-01-30', category: 'wanita', active: false}
+        ];
+        
+        function saveDiscounts() {
+            localStorage.setItem('discounts', JSON.stringify(discounts));
+        }
+        
+        function renderDiscounts() {
+            const today = new Date().toISOString().split('T')[0];
+            const active = discounts.filter(d => d.endDate >= today && d.active);
+            const expired = discounts.filter(d => d.endDate < today || !d.active);
+            
+            const activeContainer = document.getElementById('activeDiscounts');
+            const expiredContainer = document.getElementById('expiredDiscounts');
+            
+            activeContainer.innerHTML = active.map(d => `
+                <div class="discount-card">
+                    <div class="discount-badge">${d.discount}% OFF</div>
+                    <h3>${d.name}</h3>
+                    <p class="discount-code">Kode: ${d.code}</p>
+                    <p>Min. Belanja: Rp ${d.minPurchase.toLocaleString()}</p>
+                    <p>Berlaku: ${d.startDate} s/d ${d.endDate}</p>
+                    <div class="discount-actions">
+                        <button onclick="toggleDiscount(${d.id})" class="btn-toggle">Nonaktifkan</button>
+                        <button onclick="deleteDiscount(${d.id})" class="btn-delete">Hapus</button>
+                    </div>
+                </div>
+            `).join('');
+            
+            expiredContainer.innerHTML = expired.map(d => `
+                <div class="discount-card expired">
+                    <div class="discount-badge">${d.discount}% OFF</div>
+                    <h3>${d.name}</h3>
+                    <p class="discount-code">Kode: ${d.code}</p>
+                    <p>Berlaku: ${d.startDate} s/d ${d.endDate}</p>
+                    <div class="discount-actions">
+                        <button onclick="activateDiscount(${d.id})" class="btn-activate">Aktifkan Lagi</button>
+                        <button onclick="deleteDiscount(${d.id})" class="btn-delete">Hapus</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function toggleDiscount(id) {
+            const discount = discounts.find(d => d.id === id);
+            if(discount) {
+                discount.active = !discount.active;
+                saveDiscounts();
+                renderDiscounts();
+            }
+        }
+        
+        function activateDiscount(id) {
+            const discount = discounts.find(d => d.id === id);
+            if(discount) {
+                discount.active = true;
+                discount.endDate = new Date(Date.now() + 30*24*60*60*1000).toISOString().split('T')[0];
+                saveDiscounts();
+                renderDiscounts();
+                alert('Diskon diaktifkan kembali!');
+            }
+        }
+        
+        function deleteDiscount(id) {
+            if(confirm('Yakin ingin menghapus diskon ini?')) {
+                discounts = discounts.filter(d => d.id !== id);
+                saveDiscounts();
+                renderDiscounts();
+            }
+        }
+        
+        // Modal handling
+        const modal = document.getElementById('discountModal');
+        
+        function showAddDiscountModal() {
+            modal.style.display = 'block';
+        }
+        
+        document.querySelector('.close').onclick = function() {
+            modal.style.display = 'none';
+        }
+        
+        window.onclick = function(event) {
+            if(event.target === modal) modal.style.display = 'none';
+        }
+        
+        document.getElementById('discountForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const newId = discounts.length > 0 ? Math.max(...discounts.map(d => d.id)) + 1 : 1;
+            const newDiscount = {
+                id: newId,
+                name: document.getElementById('promoName').value,
+                code: document.getElementById('promoCode').value.toUpperCase(),
+                discount: parseInt(document.getElementById('discountPercent').value),
+                minPurchase: parseInt(document.getElementById('minPurchase').value),
+                startDate: document.getElementById('startDate').value,
+                endDate: document.getElementById('endDate').value,
+                category: document.getElementById('category').value,
+                active: true
+            };
+            
+            discounts.push(newDiscount);
+            saveDiscounts();
+            renderDiscounts();
+            modal.style.display = 'none';
+            this.reset();
+            alert('Diskon berhasil ditambahkan!');
+        });
+        
+        // Load components
+        Promise.all([
+            fetch('Components/sidebar-admin.html').then(res => res.text()),
+            fetch('Components/header.html').thlen(res => res.text()),
+            fetch('Components/footer.html').then(res => res.text())
+        ]).then(([sidebar, header, footer]) => {
+            document.getElementById('sidebar-container').innerHTML = sidebar;
+            document.getElementById('header-container').innerHTML = header;
+            document.getElementById('footer-container').innerHTML = footer;
+            renderDiscounts();
+        });
+    </script>
+</body>
+</html>

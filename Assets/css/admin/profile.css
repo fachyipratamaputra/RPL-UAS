@@ -1,0 +1,196 @@
+/* ========================================
+   ADMIN PROFILE STYLES
+   Terhubung dengan: pages/admin/profile.html
+   Dependensi: global.css, sidebar-admin.css
+   ======================================== */
+
+.profile-container {
+    padding: 30px;
+}
+
+.page-header {
+    margin-bottom: 30px;
+}
+
+.page-header h1 {
+    font-size: 28px;
+    color: #1f2937;
+}
+
+/* Profile Layout */
+.profile-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 30px;
+}
+
+/* Profile Avatar Section */
+.profile-avatar-section {
+    background: white;
+    border-radius: 16px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 100px;
+}
+
+.avatar {
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(135deg, #4F46E5, #7C3AED);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+}
+
+.avatar i {
+    font-size: 60px;
+    color: white;
+}
+
+.profile-avatar-section h2 {
+    font-size: 20px;
+    margin-bottom: 5px;
+    color: #1f2937;
+}
+
+.admin-role {
+    color: #6b7280;
+    font-size: 13px;
+    margin-bottom: 0;
+}
+
+/* Profile Form Section */
+.profile-form-section {
+    background: white;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+#adminProfileForm {
+    margin-bottom: 30px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #374151;
+    font-size: 14px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus {
+    border-color: #4F46E5;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.form-group input:disabled {
+    background: #f9fafb;
+    cursor: not-allowed;
+}
+
+/* Change Password Section */
+.change-password-section h3 {
+    font-size: 18px;
+    margin-bottom: 20px;
+    color: #1f2937;
+}
+
+#changePasswordForm {
+    max-width: 400px;
+}
+
+.btn-primary,
+.btn-secondary {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #4F46E5, #7C3AED);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+.btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+}
+
+.btn-secondary:hover {
+    background: #e5e7eb;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .profile-container {
+        padding: 20px;
+    }
+    
+    .profile-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .profile-avatar-section {
+        position: static;
+    }
+    
+    .profile-form-section {
+        padding: 20px;
+    }
+    
+    #changePasswordForm {
+        max-width: 100%;
+    }
+    
+    .btn-primary,
+    .btn-secondary {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .avatar {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .avatar i {
+        font-size: 50px;
+    }
+    
+    .profile-avatar-section h2 {
+        font-size: 18px;
+    }
+}

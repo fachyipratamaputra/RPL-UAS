@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil Saya - Toko Baju Online</title>
+    <link rel="stylesheet" href="../../assets/css/global/global.css">
+    <link rel="stylesheet" href="../../assets/css/customer/profile.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div id="header-container"></div>
+    <div id="navbar-container"></div>
+    
+    <main class="profile-main">
+        <div class="container">
+            <div class="profile-layout">
+                <div class="profile-sidebar">
+                    <div class="profile-avatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="profile-name" id="profileName"></div>
+                    <nav class="profile-nav">
+                        <button class="nav-btn active" data-tab="personal">Informasi Pribadi</button>
+                        <button class="nav-btn" data-tab="address">Alamat Saya</button>
+                        <button class="nav-btn" data-tab="security">Keamanan</button>
+                    </nav>
+                </div>
+                
+                <div class="profile-content">
+                    <div id="personalTab" class="tab-content active">
+                        <h2>Informasi Pribadi</h2>
+                        <form id="profileForm">
+                            <div class="form-group">
+                                <label>Nama Lengkap</label>
+                                <input type="text" id="fullname" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" id="email" required>
+                            </div>
+                            <div class="form-group">
+                                <label>No. Telepon</label>
+                                <input type="tel" id="phone" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Tanggal Lahir</label>
+                                <input type="date" id="birthdate">
+                            </div>
+                            <div class="form-group">
+                                <label>Jenis Kelamin</label>
+                                <select id="gender">
+                                    <option value="">Pilih</option>
+                                    <option value="male">Laki-laki</option>
+                                    <option value="female">Perempuan</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn-save">Simpan Perubahan</button>
+                        </form>
+                    </div>
+                    
+                    <div id="addressTab" class="tab-content">
+                        <h2>Alamat Saya</h2>
+                        <div id="addressList"></div>
+                        <button class="btn-add-address" onclick="addAddress()">+ Tambah Alamat Baru</button>
+                    </div>
+                    
+                    <div id="securityTab" class="tab-content">
+                        <h2>Keamanan</h2>
+                        <form id="securityForm">
+                            <div class="form-group">
+                                <label>Password Lama</label>
+                                <input type="password" id="oldPassword" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Password Baru</label>
+                                <input type="password" id="newPassword" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Konfirmasi Password Baru</label>
+                                <input type="password" id="confirmPassword" required>
+                            </div>
+                            <button type="submit" class="btn-save">Ubah Password</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <div id="footer-container"></div>
+    
+    <script>
+        // Load user data
+        function loadUserData() {
+            document.getElementById('fullname').value = localStorage.getItem('userFullname') || '';
+            document.getElementById('email').value = localStorage.getItem('userEmail') || '';
+            document.getElementById('phone').value = localStorage.getItem('userPhone') || '';
+            document.getElementById('profileName').textContent = localStorage.getItem('userFullname') || 'Pengguna';
+        }
+        
+        // Save profile
+        document.getElementById('profileForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const fullname = document.getElementById('fullname').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const birthdate = document.getElementById('birthdate').value;
+            const gender = document.getElementById('gender').value;
+            
+            localStorage.setItem('userFullname', fullname);
+            localStorage.setItem('userEmail', email);
+            localStorage.setItem('userPhone', phone);
+            localStorage.setItem('userBirthdate', birthdate);
+            localStorage.setItem('userGender', gender);
+            
+            alert('Profil berhasil diperbarui!');
+            loadUserData();
+        });
+        
+        // Tab navigation
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                const tabId = this.getAttribute('data-tab');
+                if(tabId === 'personal') document.getElementById('personalTab').classList.add('active');
+                if(tabId === 'address') document.getElementById('addressTab').classList.add('active');
+                if(tabId === 'security') document.getElementById('securityTab').classList.add('active');
+            });
+        });
+        
+        // Security form
+        document.getElementById('securityForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if(newPassword !== confirmPassword) {
+                alert('Password baru tidak cocok!');
+                return;
+            }
+            
+            if(newPassword.length < 6) {
+                alert('Password minimal 6 karakter!');
+                return;
+            }
+            
+            alert('Password berhasil diubah!');
+            this.reset();
+        });
+        
+        function loadAddresses() {
+            const addresses = JSON.parse(localStorage.getItem('userAddresses')) || [];
+            const container = document.getElementById('addressList');
+            if(addresses.length === 0) {
+                container.innerHTML = '<p>Belum ada alamat tersimpan</p>';
+                return;
+            }
+            container.innerHTML = addresses.map((addr, index) => `
+                <div class="address-card">
+                    <div>
+                        <strong>${addr.label}</strong>
+                        <p>${addr.address}</p>
+                        <p>${addr.city}, ${addr.province} - ${addr.postalCode}</p>
+                        <p>Telp: ${addr.phone}</p>
+                    </div>
+                    <div>
+                        <button onclick="editAddress(${index})" class="btn-edit">Edit</button>
+                        <button onclick="deleteAddress(${index})" class="btn-delete">Hapus</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function addAddress() {
+            const label = prompt('Label alamat (contoh: Rumah, Kantor)');
+            const address = prompt('Alamat lengkap');
+            const city = prompt('Kota');
+            const province = prompt('Provinsi');
+            const postalCode = prompt('Kode Pos');
+            const phone = prompt('No. Telepon');
+            
+            if(label && address && city && province && postalCode && phone) {
+                const addresses = JSON.parse(localStorage.getItem('userAddresses')) || [];
+                addresses.push({label, address, city, province, postalCode, phone});
+                localStorage.setItem('userAddresses', JSON.stringify(addresses));
+                loadAddresses();
+            }
+        }
+        
+        function editAddress(index) {
+            const addresses = JSON.parse(localStorage.getItem('userAddresses')) || [];
+            const addr = addresses[index];
+            const label = prompt('Label alamat', addr.label);
+            const address = prompt('Alamat lengkap', addr.address);
+            const city = prompt('Kota', addr.city);
+            const province = prompt('Provinsi', addr.province);
+            const postalCode = prompt('Kode Pos', addr.postalCode);
+            const phone = prompt('No. Telepon', addr.phone);
+            
+            if(label && address && city && province && postalCode && phone) {
+                addresses[index] = {label, address, city, province, postalCode, phone};
+                localStorage.setItem('userAddresses', JSON.stringify(addresses));
+                loadAddresses();
+            }
+        }
+        
+        function deleteAddress(index) {
+            if(confirm('Hapus alamat ini?')) {
+                const addresses = JSON.parse(localStorage.getItem('userAddresses')) || [];
+                addresses.splice(index, 1);
+                localStorage.setItem('userAddresses', JSON.stringify(addresses));
+                loadAddresses();
+            }
+        }
+        
+        // Load components
+        Promise.all([
+            fetch('../../components/header.html').then(res => res.text()),
+            fetch('../../components/navbar.html').then(res => res.text()),
+            fetch('../../components/footer.html').then(res => res.text())
+        ]).then(([header, navbar, footer]) => {
+            document.getElementById('header-container').innerHTML = header;
+            document.getElementById('navbar-container').innerHTML = navbar;
+            document.getElementById('footer-container').innerHTML = footer;
+            loadUserData();
+            loadAddresses();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <header class="main-header">
+        <div class="header-top">
+            <div class="container">
+                <div class="header-top-content">
+                    <div class="header-info">
+                        <span><i class="fas fa-truck"></i> Gratis Ongkir Min. Belanja Rp200.000</span>
+                        <span><i class="fas fa-undo-alt"></i> Garansi Return 14 Hari</span>
+                        <span><i class="fas fa-headset"></i> Customer Service 24/7</span>
+                    </div>
+                    <div class="header-contact">
+                        <a href="tel:02112345678"><i class="fas fa-phone"></i> (021) 12345678</a>
+                        <a href="mailto:cs@tokobaju.com"><i class="fas fa-envelope"></i> cs@tokobaju.com</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <style>
+        .main-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 13px;
+        }
+        .header-top {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .header-top-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .header-info {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .header-info span {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .header-info span i {
+            font-size: 14px;
+        }
+        .header-contact {
+            display: flex;
+            gap: 20px;
+        }
+        .header-contact a {
+            color: white;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: opacity 0.3s;
+        }
+        .header-contact a:hover {
+            opacity: 0.8;
+        }
+        @media (max-width: 768px) {
+            .header-top-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            .header-info, .header-contact {
+                justify-content: center;
+            }
+            .header-info {
+                font-size: 11px;
+            }
+        }
+    </style>
+</body>
+</html>

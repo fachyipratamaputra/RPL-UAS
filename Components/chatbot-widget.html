@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <div class="chatbot-widget" id="chatbotWidget">
+        <div class="chatbot-toggle" id="chatbotToggle">
+            <i class="fas fa-comment-dots"></i>
+            <span class="notification-badge" id="chatNotif">1</span>
+        </div>
+        
+        <div class="chatbot-container" id="chatbotContainer">
+            <div class="chatbot-header">
+                <div class="chatbot-info">
+                    <i class="fas fa-robot"></i>
+                    <div>
+                        <h4>Asisten Virtual</h4>
+                        <p>Online - Siap membantu</p>
+                    </div>
+                </div>
+                <button class="chatbot-close" id="chatbotClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="chatbot-messages" id="chatbotMessages">
+                <div class="message bot">
+                    <div class="message-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-content">
+                        <div class="message-text">
+                            Halo! 👋 Ada yang bisa saya bantu? Silakan tanyakan apapun tentang produk, pesanan, atau promo!
+                        </div>
+                        <div class="message-time">Sekarang</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chatbot-quick-replies">
+                <button onclick="sendQuickReplyWidget('Lihat produk')">🛍️ Lihat produk</button>
+                <button onclick="sendQuickReplyWidget('Cek pesanan')">📦 Cek pesanan</button>
+                <button onclick="sendQuickReplyWidget('Info pengiriman')">🚚 Info pengiriman</button>
+                <button onclick="sendQuickReplyWidget('Panduan ukuran')">📏 Panduan ukuran</button>
+                <button onclick="sendQuickReplyWidget('Promo')">🏷️ Promo</button>
+            </div>
+            
+            <div class="chatbot-input">
+                <input type="text" id="chatbotInput" placeholder="Ketik pesan Anda..." onkeypress="handleWidgetKeyPress(event)">
+                <button onclick="sendChatbotMessage()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .chatbot-widget {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+        }
+        .chatbot-toggle {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #4F46E5, #7C3AED);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+            transition: transform 0.3s;
+            position: relative;
+        }
+        .chatbot-toggle:hover {
+            transform: scale(1.1);
+        }
+        .chatbot-toggle i {
+            font-size: 28px;
+            color: white;
+        }
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .chatbot-container {
+            position: absolute;
+            bottom: 80px;
+            right: 0;
+            width: 350px;
+            height: 500px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideUp 0.3s ease;
+        }
+        .chatbot-container.show {
+            display: flex;
+        }
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .chatbot-header {
+            background: linear-gradient(135deg, #4F46E5, #7C3AED);
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chatbot-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .chatbot-info i {
+            font-size: 32px;
+        }
+        .chatbot-info h4 {
+            margin: 0;
+            font-size: 16px;
+        }
+        .chatbot-info p {
+            margin: 0;
+            font-size: 11px;
+            opacity: 0.8;
+        }
+        .chatbot-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .chatbot-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            background: #f9fafb;
+        }
+        .message {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .message.bot {
+            justify-content: flex-start;
+        }
+        .message.user {
+            justify-content: flex-end;
+        }
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            background: #4F46E5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        .message-content {
+            max-width: 70%;
+        }
+        .message.user .message-content {
+            text-align: right;
+        }
+        .message-text {
+            background: white;
+            padding: 10px 12px;
+            border-radius: 15px;
+            font-size: 13px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .message.user .message-text {
+            background: #4F46E5;
+            color: white;
+        }
+        .message-time {
+            font-size: 10px;
+            color: #9ca3af;
+            margin-top: 4px;
+        }
+        .chatbot-quick-replies {
+            padding: 10px;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            border-top: 1px solid #e5e7eb;
+            background: white;
+        }
+        .chatbot-quick-replies button {
+            padding: 6px 12px;
+            background: #f3f4f6;
+            border: none;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.3s;
+        }
+        .chatbot-quick-replies button:hover {
+            background: #e5e7eb;
+        }
+        .chatbot-input {
+            padding: 10px;
+            display: flex;
+            gap: 10px;
+            border-top: 1px solid #e5e7eb;
+            background: white;
+        }
+        .chatbot-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #e5e7eb;
+            border-radius: 25px;
+            outline: none;
+            font-size: 13px;
+        }
+        .chatbot-input input:focus {
+            border-color: #4F46E5;
+        }
+        .chatbot-input button {
+            width: 40px;
+            height: 40px;
+            background: #4F46E5;
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .chatbot-input button:hover {
+            background: #4338ca;
+        }
+        @media (max-width: 480px) {
+            .chatbot-container {
+                width: 300px;
+                height: 450px;
+                right: -10px;
+            }
+        }
+    </style>
+
+    <script>
+        // Toggle chatbot
+        const toggleBtn = document.getElementById('chatbotToggle');
+        const container = document.getElementById('chatbotContainer');
+        const closeBtn = document.getElementById('chatbotClose');
+        
+        if(toggleBtn && container) {
+            toggleBtn.addEventListener('click', () => {
+                container.classList.toggle('show');
+                const notif = document.getElementById('chatNotif');
+                if(notif) notif.style.display = 'none';
+            });
+        }
+        
+        if(closeBtn && container) {
+            closeBtn.addEventListener('click', () => {
+                container.classList.remove('show');
+            });
+        }
+        
+        // Send message
+        function sendChatbotMessage() {
+            const input = document.getElementById('chatbotInput');
+            const message = input.value.trim();
+            if(message === '') return;
+            
+            addMessageWidget(message, 'user');
+            input.value = '';
+            
+            setTimeout(() => {
+                getBotResponseWidget(message);
+            }, 500);
+        }
+        
+        function sendQuickReplyWidget(message) {
+            addMessageWidget(message, 'user');
+            setTimeout(() => {
+                getBotResponseWidget(message);
+            }, 500);
+        }
+        
+        function addMessageWidget(text, sender) {
+            const messagesContainer = document.getElementById('chatbotMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            if(sender === 'bot') {
+                messageDiv.innerHTML = `
+                    <div class="message-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-content">
+                        <div class="message-text">${text}</div>
+                        <div class="message-time">${new Date().toLocaleTimeString()}</div>
+                    </div>
+                `;
+            } else {
+                messageDiv.innerHTML = `
+                    <div class="message-content">
+                        <div class="message-text">${text}</div>
+                        <div class="message-time">${new Date().toLocaleTimeString()}</div>
+                    </div>
+                `;
+            }
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        function getBotResponseWidget(message) {
+            let response = '';
+            const lowerMsg = message.toLowerCase();
+            
+            if(lowerMsg.includes('halo') || lowerMsg.includes('hai') || lowerMsg.includes('hi')) {
+                response = 'Hai! 👋 Senang bertemu dengan Anda! Ada yang bisa saya bantu?';
+            }
+            else if(lowerMsg.includes('produk') || lowerMsg.includes('belanja') || lowerMsg.includes('lihat produk')) {
+                response = 'Anda bisa melihat semua produk kami di sini: <a href="../../pages/customer/products.html" style="color: #4F46E5;">Lihat Semua Produk</a> 🛍️';
+            }
+            else if(lowerMsg.includes('pesanan') || lowerMsg.includes('cek pesanan') || lowerMsg.includes('order')) {
+                response = 'Cek status pesanan Anda di sini: <a href="../../pages/customer/order-history.html" style="color: #4F46E5;">Riwayat Pesanan</a> 📦';
+            }
+            else if(lowerMsg.includes('pengiriman') || lowerMsg.includes('ongkir')) {
+                response = '🚚 Pengiriman ke seluruh Indonesia. Ongkos kirim mulai Rp15.000. Gratis ongkir untuk pembelian minimal Rp200.000!';
+            }
+            else if(lowerMsg.includes('ukuran') || lowerMsg.includes('size')) {
+                response = '📏 Panduan ukuran: S (86cm), M (92cm), L (98cm), XL (104cm). Untuk detail lengkap cek halaman produk ya!';
+            }
+            else if(lowerMsg.includes('promo') || lowerMsg.includes('diskon')) {
+                response = '🏷️ Promo saat ini: Diskon up to 50% untuk koleksi terbaru! Gunakan kode BAJU20 untuk diskon 20% pembelian pertama!';
+            }
+            else if(lowerMsg.includes('pembayaran')) {
+                response = '💳 Kami menerima: Transfer Bank (BCA, Mandiri, BNI, BRI), Kartu Kredit, E-Wallet (OVO, GoPay, Dana), dan COD.';
+            }
+            else if(lowerMsg.includes('return')) {
+                response = '🔄 Garansi return 14 hari. Syarat: barang tidak pernah dipakai, tag masih terpasang. Hubungi CS untuk info lebih lanjut.';
+            }
+            else if(lowerMsg.includes('kontak') || lowerMsg.includes('cs')) {
+                response = '📞 Hubungi CS kami: WhatsApp 0812-3456-7890, Email cs@tokobaju.com, atau telepon (021) 12345678.';
+            }
+            else {
+                response = 'Maaf, saya belum mengerti. 😅 Coba tanyakan tentang: produk, pesanan, pengiriman, ukuran, promo, pembayaran, return, atau kontak CS. Atau hubungi admin langsung di WhatsApp ya!';
+            }
+            
+            addMessageWidget(response, 'bot');
+        }
+        
+        function handleWidgetKeyPress(event) {
+            if(event.key === 'Enter') {
+                sendChatbotMessage();
+            }
+        }
+    </script>
+</body>
+</html>

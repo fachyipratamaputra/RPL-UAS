@@ -1,0 +1,147 @@
+/* ========================================
+   ADMIN LOGIN PAGE STYLES
+   Terhubung dengan: pages/admin/login.html
+   Dependensi: global.css
+   ======================================== */
+
+.admin-login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%);
+    padding: 20px;
+}
+
+.admin-login-box {
+    background: white;
+    border-radius: 24px;
+    padding: 45px 40px;
+    max-width: 450px;
+    width: 100%;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+    animation: fadeInUp 0.5s ease;
+}
+
+.admin-login-header {
+    text-align: center;
+    margin-bottom: 35px;
+}
+
+.admin-login-header i {
+    font-size: 60px;
+    color: #4F46E5;
+    margin-bottom: 15px;
+}
+
+.admin-login-header h2 {
+    font-size: 28px;
+    color: #1f2937;
+    margin-bottom: 8px;
+}
+
+.admin-login-header p {
+    color: #6b7280;
+    font-size: 14px;
+}
+
+#adminLoginForm .form-group {
+    margin-bottom: 25px;
+}
+
+#adminLoginForm label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #374151;
+    font-size: 14px;
+}
+
+#adminLoginForm label i {
+    margin-right: 8px;
+    color: #4F46E5;
+}
+
+#adminLoginForm input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+#adminLoginForm input:focus {
+    border-color: #4F46E5;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.btn-login {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #4F46E5, #7C3AED);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+.btn-login:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+}
+
+.admin-login-footer {
+    text-align: center;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.admin-login-footer a {
+    color: #6b7280;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s;
+}
+
+.admin-login-footer a:hover {
+    color: #4F46E5;
+}
+
+.admin-login-footer i {
+    margin-right: 5px;
+}
+
+/* Error Message */
+.login-error {
+    background: #fee2e2;
+    color: #dc2626;
+    padding: 12px 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .admin-login-box {
+        padding: 30px 25px;
+    }
+    
+    .admin-login-header i {
+        font-size: 50px;
+    }
+    
+    .admin-login-header h2 {
+        font-size: 24px;
+    }
+}

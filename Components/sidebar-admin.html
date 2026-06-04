@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <aside class="admin-sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-store"></i>
+                <span>Admin Panel</span>
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="../../pages/admin/dashboard.html" class="nav-item" data-page="dashboard">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="../../pages/admin/products.html" class="nav-item" data-page="products">
+                <i class="fas fa-box"></i>
+                <span>Kelola Produk</span>
+            </a>
+            <a href="../../pages/admin/discounts.html" class="nav-item" data-page="discounts">
+                <i class="fas fa-tags"></i>
+                <span>Diskon & Promo</span>
+            </a>
+            <a href="../../pages/admin/payments.html" class="nav-item" data-page="payments">
+                <i class="fas fa-credit-card"></i>
+                <span>Pembayaran</span>
+            </a>
+            <a href="../../pages/admin/reports.html" class="nav-item" data-page="reports">
+                <i class="fas fa-chart-line"></i>
+                <span>Laporan</span>
+            </a>
+            <a href="../../pages/admin/users.html" class="nav-item" data-page="users">
+                <i class="fas fa-users"></i>
+                <span>Kelola Pengguna</span>
+            </a>
+            <a href="../../pages/admin/profile.html" class="nav-item" data-page="profile">
+                <i class="fas fa-user-cog"></i>
+                <span>Profil Admin</span>
+            </a>
+            <hr>
+            <a href="#" id="adminLogoutBtn" class="nav-item logout">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <div class="admin-info">
+                <i class="fas fa-user-shield"></i>
+                <div>
+                    <span id="adminName">Admin</span>
+                    <small>Administrator</small>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <style>
+        .admin-sidebar {
+            width: 260px;
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+            color: white;
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+            transition: transform 0.3s;
+        }
+        .sidebar-header {
+            padding: 25px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .sidebar-header .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .sidebar-header .logo i {
+            font-size: 28px;
+        }
+        .sidebar-nav {
+            padding: 20px 0;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: all 0.3s;
+            margin: 4px 10px;
+            border-radius: 10px;
+        }
+        .nav-item i {
+            width: 20px;
+            font-size: 18px;
+        }
+        .nav-item:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        .nav-item.active {
+            background: #4F46E5;
+            color: white;
+        }
+        .sidebar-nav hr {
+            margin: 15px 20px;
+            border-color: rgba(255,255,255,0.1);
+        }
+        .logout {
+            color: #f87171;
+        }
+        .logout:hover {
+            background: rgba(248,113,113,0.1);
+            color: #f87171;
+        }
+        .sidebar-footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        .admin-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .admin-info i {
+            font-size: 32px;
+        }
+        .admin-info div {
+            display: flex;
+            flex-direction: column;
+        }
+        .admin-info span {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .admin-info small {
+            font-size: 11px;
+            opacity: 0.7;
+        }
+        @media (max-width: 768px) {
+            .admin-sidebar {
+                transform: translateX(-100%);
+            }
+            .admin-sidebar.show {
+                transform: translateX(0);
+            }
+        }
+    </style>
+
+    <script>
+        // Set active menu based on current page
+        function setActiveMenu() {
+            const currentPage = window.location.pathname.split('/').pop().replace('.html', '');
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                const page = item.getAttribute('data-page');
+                if(page === currentPage) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+        
+        // Load admin name
+        function loadAdminName() {
+            const adminName = localStorage.getItem('adminUsername') || 'Admin';
+            const nameElements = document.querySelectorAll('#adminName');
+            nameElements.forEach(el => {
+                if(el) el.textContent = adminName;
+            });
+        }
+        
+        // Admin logout
+        const adminLogoutBtn = document.getElementById('adminLogoutBtn');
+        if(adminLogoutBtn) {
+            adminLogoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if(confirm('Yakin ingin logout?')) {
+                    localStorage.removeItem('adminLoggedIn');
+                    localStorage.removeItem('adminUsername');
+                    window.location.href = '../../pages/admin/login.html';
+                }
+            });
+        }
+        
+        // Initialize
+        setActiveMenu();
+        loadAdminName();
+    </script>
+</body>
+</html>

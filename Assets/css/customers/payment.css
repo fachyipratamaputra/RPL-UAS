@@ -1,0 +1,220 @@
+/* ========================================
+   PAYMENT PAGE STYLES
+   Terhubung dengan: pages/customer/payment.html
+   Dependensi: global.css
+   ======================================== */
+
+.payment-main {
+    padding: 40px 0;
+    background: #f9fafb;
+    min-height: 70vh;
+}
+
+.payment-main h1 {
+    font-size: 32px;
+    margin-bottom: 30px;
+    color: #1f2937;
+}
+
+.payment-layout {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 30px;
+}
+
+/* Payment Methods */
+.payment-methods {
+    background: white;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.payment-methods h3 {
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: #1f2937;
+}
+
+.payment-options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.payment-option {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.payment-option:hover {
+    border-color: #4F46E5;
+    background: #f9fafb;
+}
+
+.payment-option.selected {
+    border-color: #4F46E5;
+    background: #f0f0ff;
+}
+
+.payment-option input {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.payment-option i {
+    font-size: 32px;
+    color: #4F46E5;
+}
+
+.payment-option div {
+    flex: 1;
+}
+
+.payment-option strong {
+    display: block;
+    margin-bottom: 5px;
+    color: #1f2937;
+}
+
+.payment-option span {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+/* Bank Transfer Details */
+.bank-details {
+    margin-top: 30px;
+    padding: 20px;
+    background: #f9fafb;
+    border-radius: 12px;
+    display: none;
+}
+
+.bank-details.active {
+    display: block;
+    animation: fadeInUp 0.3s ease;
+}
+
+.bank-details h4 {
+    font-size: 16px;
+    margin-bottom: 15px;
+    color: #1f2937;
+}
+
+.bank-list {
+    display: grid;
+    gap: 15px;
+}
+
+.bank-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+}
+
+.bank-item .bank-name {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.bank-item .bank-number {
+    font-family: monospace;
+    font-size: 16px;
+    color: #4F46E5;
+    font-weight: 600;
+}
+
+/* E-Wallet Details */
+.ewallet-details {
+    margin-top: 30px;
+    padding: 20px;
+    background: #f9fafb;
+    border-radius: 12px;
+    display: none;
+}
+
+.ewallet-details.active {
+    display: block;
+    animation: fadeInUp 0.3s ease;
+}
+
+.qr-code {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.qr-code img {
+    width: 150px;
+    height: 150px;
+}
+
+.instruction {
+    font-size: 13px;
+    color: #6b7280;
+    text-align: center;
+}
+
+/* Payment Summary */
+.payment-summary {
+    position: sticky;
+    top: 100px;
+}
+
+.payment-summary .summary-card {
+    background: white;
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.btn-pay {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #4F46E5, #7C3AED);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: all 0.3s ease;
+}
+
+.btn-pay:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .payment-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .payment-methods {
+        padding: 20px;
+    }
+    
+    .payment-summary {
+        position: static;
+    }
+    
+    .bank-item {
+        flex-direction: column;
+        gap: 8px;
+        text-align: center;
+    }
+}

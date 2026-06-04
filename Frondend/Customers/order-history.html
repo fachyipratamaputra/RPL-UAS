@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riwayat Pesanan - Toko Baju Online</title>
+    <link rel="stylesheet" href="../../assets/css/global/global.css">
+    <link rel="stylesheet" href="../../assets/css/customer/order-history.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div id="header-container"></div>
+    <div id="navbar-container"></div>
+    
+    <main class="history-main">
+        <div class="container">
+            <h1>Riwayat Pesanan</h1>
+            <div id="ordersList" class="orders-list"></div>
+        </div>
+    </main>
+    
+    <div id="footer-container"></div>
+    
+    <script>
+        const products = {
+            1: {name: 'Kaos Polos Premium', price: 150000},
+            2: {name: 'Kemeja Flanel Pria', price: 250000},
+            3: {name: 'Dress Wanita Elegan', price: 350000},
+            4: {name: 'Jaket Denim', price: 450000}
+        };
+        
+        function loadOrders() {
+            const orders = JSON.parse(localStorage.getItem('orders')) || [];
+            const container = document.getElementById('ordersList');
+            
+            if(orders.length === 0) {
+                container.innerHTML = '<div class="empty-orders"><i class="fas fa-box-open"></i><p>Belum ada pesanan</p><a href="products.html" class="btn-primary">Mulai Belanja</a></div>';
+                return;
+            }
+            
+            container.innerHTML = orders.map(order => {
+                let subtotal = 0;
+                let items = '';
+                order.items.forEach(item => {
+                    const product = products[item.id];
+                    const itemTotal = product.price * item.quantity;
+                    subtotal += itemTotal;
+                    items += `<li>${product.name} x ${item.quantity} = Rp ${itemTotal.toLocaleString()}</li>`;
+                });
+                const shipping = 20000;
+                const total = subtotal + shipping;
+                
+                return `
+                    <div class="order-card">
+                        <div class="order-header">
+                            <div>
+                                <h3>${order.orderId}</h3>
+                                <p>${new Date(order.date).toLocaleDateString('id-ID')}</p>
+                            </div>
+                            <div class="order-status ${order.orderStatus}">${getStatusText(order.orderStatus)}</div>
+                        </div>
+                        <div class="order-body">
+                            <div class="order-items">
+                                <ul>${items}</ul>
+                            </div>
+                            <div class="order-total">
+                                <strong>Total: Rp ${total.toLocaleString()}</strong>
+                            </div>
+                            <div class="order-payment">
+                                <span>Metode Pembayaran: ${order.paymentMethod || 'Belum dipilih'}</span>
+                            </div>
+                        </div>
+                        <div class="order-footer">
+                            <button onclick="trackOrder('${order.orderId}')" class="btn-track">Lacak Pesanan</button>
+                            <button onclick="reorder('${order.orderId}')" class="btn-reorder">Pesan Lagi</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function getStatusText(status) {
+            const statusMap = {
+                'pending': 'Menunggu Pembayaran',
+                'processing': 'Diproses',
+                'shipped': 'Dikirim',
+                'delivered': 'Selesai',
+                'cancelled': 'Dibatalkan'
+            };
+            return statusMap[status] || status;
+        }
+        
+        function trackOrder(orderId) {
+            alert(`Tracking pesanan ${orderId}: Pesanan sedang diproses oleh kurir`);
+        }
+        
+        function reorder(orderId) {
+            const orders = JSON.parse(localStorage.getItem('orders')) || [];
+            const order = orders.find(o => o.orderId === orderId);
+            if(order && order.items) {
+                let cart = JSON.parse(localStorage.getItem('cart')) || [];
+                order.items.forEach(item => {
+                    const existing = cart.find(c => c.id === item.id);
+                    if(existing) {
+                        existing.quantity += item.quantity;
+                    } else {
+                        cart.push({...item});
+                    }
+                });
+                localStorage.setItem('cart', JSON.stringify(cart));
+                alert('Produk ditambahkan ke keranjang!');
+                window.location.href = 'cart.html';
+            }
+        }
+        
+        // Load components
+        Promise.all([
+            fetch('../../components/header.html').then(res => res.text()),
+            fetch('../../components/navbar.html').then(res => res.text()),
+            fetch('../../components/footer.html').then(res => res.text())
+        ]).then(([header, navbar, footer]) => {
+            document.getElementById('header-container').innerHTML = header;
+            document.getElementById('navbar-container').innerHTML = navbar;
+            document.getElementById('footer-container').innerHTML = footer;
+            loadOrders();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Toko Baju Online</title>
+    <link rel="stylesheet" href="../../assets/css/global/global.css">
+    <link rel="stylesheet" href="../../assets/css/customer/login.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="header-container"></div>
+    
+    <div class="auth-container">
+        <div class="auth-box">
+            <div class="auth-header">
+                <h2>Login</h2>
+                <p>Silakan login untuk melanjutkan belanja</p>
+            </div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required placeholder="Masukkan email Anda">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required placeholder="Masukkan password">
+                </div>
+                
+                <div class="form-options">
+                    <label class="checkbox">
+                        <input type="checkbox" id="remember"> Ingat Saya
+                    </label>
+                    <a href="#" class="forgot-password">Lupa Password?</a>
+                </div>
+                
+                <button type="submit" class="btn-login">Login</button>
+            </form>
+            
+            <div class="auth-footer">
+                <p>Belum punya akun? <a href="register.html">Daftar Sekarang</a></p>
+            </div>
+            
+            <div class="social-login">
+                <p>Atau login dengan</p>
+                <div class="social-icons">
+                    <a href="#" class="social-icon google"><i class="fab fa-google"></i></a>
+                    <a href="#" class="social-icon facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="social-icon apple"><i class="fab fa-apple"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="footer-container"></div>
+    
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const remember = document.getElementById('remember').checked;
+            
+            // Simulasi login
+            if(email && password) {
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('userEmail', email);
+                if(remember) {
+                    localStorage.setItem('rememberMe', 'true');
+                }
+                alert('Login berhasil!');
+                window.location.href = 'home.html';
+            } else {
+                alert('Harap isi semua field!');
+            }
+        });
+        
+        // Load components
+        fetch('../../components/header.html')
+            .then(res => res.text())
+            .then(data => document.getElementById('header-container').innerHTML = data);
+        fetch('../../components/footer.html')
+            .then(res => res.text())
+            .then(data => document.getElementById('footer-container').innerHTML = data);
+    </script>
+</body>
+</html>

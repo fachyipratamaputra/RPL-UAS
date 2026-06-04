@@ -1,0 +1,276 @@
+/* ========================================
+   ADMIN PAYMENTS MANAGEMENT STYLES
+   Terhubung dengan: pages/admin/payments.html
+   Dependensi: global.css, sidebar-admin.css
+   ======================================== */
+
+.payments-container {
+    padding: 30px;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.page-header h1 {
+    font-size: 28px;
+    color: #1f2937;
+}
+
+.summary-stats {
+    display: flex;
+    gap: 20px;
+}
+
+.summary-stats .stat {
+    background: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.summary-stats .stat span {
+    font-weight: 700;
+    color: #4F46E5;
+    font-size: 18px;
+    margin-left: 8px;
+}
+
+/* Payment Methods */
+.payment-methods {
+    background: white;
+    border-radius: 16px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.payment-methods h2 {
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: #1f2937;
+}
+
+.methods-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.method-card {
+    background: #f9fafb;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: 1px solid #e5e7eb;
+}
+
+.method-card i {
+    font-size: 40px;
+    color: #4F46E5;
+    margin-bottom: 10px;
+}
+
+.method-card h3 {
+    font-size: 16px;
+    margin-bottom: 5px;
+    color: #1f2937;
+}
+
+.method-card p {
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 15px;
+}
+
+/* Toggle Switch */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.3s;
+    border-radius: 24px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #4F46E5;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+/* Transaction History */
+.transaction-history {
+    background: white;
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.transaction-history h2 {
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: #1f2937;
+}
+
+.filters {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.filters input,
+.filters select {
+    padding: 10px 15px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.filters input {
+    flex: 1;
+    min-width: 200px;
+}
+
+.filters select {
+    min-width: 150px;
+}
+
+/* Transactions Table */
+.table-responsive {
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px;
+}
+
+.data-table th {
+    text-align: left;
+    padding: 12px 15px;
+    background: #f9fafb;
+    font-weight: 600;
+    color: #374151;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.data-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.status-badge.pending {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.status-badge.paid {
+    background: #d1fae5;
+    color: #059669;
+}
+
+.status-badge.failed {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.btn-sm {
+    padding: 5px 12px;
+    background: #4F46E5;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    margin-right: 5px;
+}
+
+.btn-sm.btn-success {
+    background: #10b981;
+}
+
+.btn-sm.btn-success:hover {
+    background: #059669;
+}
+
+.btn-sm:hover {
+    background: #4338ca;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .payments-container {
+        padding: 20px;
+    }
+    
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .summary-stats {
+        flex-wrap: wrap;
+    }
+    
+    .methods-grid {
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    }
+    
+    .filters {
+        flex-direction: column;
+    }
+    
+    .filters input,
+    .filters select {
+        width: 100%;
+    }
+}

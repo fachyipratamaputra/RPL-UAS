@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pembayaran - Toko Baju Online</title>
+    <link rel="stylesheet" href="../../assets/css/global/global.css">
+    <link rel="stylesheet" href="../../assets/css/customer/payment.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div id="header-container"></div>
+    <div id="navbar-container"></div>
+    
+    <main class="payment-main">
+        <div class="container">
+            <h1>Pembayaran</h1>
+            <div class="payment-layout">
+                <div class="payment-methods">
+                    <h3>Metode Pembayaran</h3>
+                    <div class="payment-options">
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="bank_transfer" checked>
+                            <div>
+                                <i class="fas fa-university"></i>
+                                <strong>Transfer Bank</strong>
+                                <span>BCA, Mandiri, BNI, BRI</span>
+                            </div>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="credit_card">
+                            <div>
+                                <i class="fas fa-credit-card"></i>
+                                <strong>Kartu Kredit</strong>
+                                <span>Visa, Mastercard</span>
+                            </div>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="ewallet">
+                            <div>
+                                <i class="fas fa-mobile-alt"></i>
+                                <strong>E-Wallet</strong>
+                                <span>OVO, GoPay, Dana, ShopeePay</span>
+                            </div>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="cod">
+                            <div>
+                                <i class="fas fa-truck"></i>
+                                <strong>COD (Bayar di Tempat)</strong>
+                                <span>Bayar saat barang diterima</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="payment-summary" id="paymentSummary"></div>
+            </div>
+        </div>
+    </main>
+    
+    <div id="footer-container"></div>
+    
+    <script>
+        const products = {
+            1: {name: 'Kaos Polos Premium', price: 150000},
+            2: {name: 'Kemeja Flanel Pria', price: 250000},
+            3: {name: 'Dress Wanita Elegan', price: 350000},
+            4: {name: 'Jaket Denim', price: 450000}
+        };
+        
+        function loadPaymentSummary() {
+            const currentOrder = JSON.parse(localStorage.getItem('currentOrder'));
+            let subtotal = 0;
+            let items = '';
+            
+            if(currentOrder && currentOrder.items) {
+                currentOrder.items.forEach(item => {
+                    const product = products[item.id];
+                    const itemTotal = product.price * item.quantity;
+                    subtotal += itemTotal;
+                    items += `<div class="order-item">
+                        <span>${product.name} x ${item.quantity}</span>
+                        <span>Rp ${itemTotal.toLocaleString()}</span>
+                    </div>`;
+                });
+            }
+            
+            const shipping = 20000;
+            const total = subtotal + shipping;
+            
+            document.getElementById('paymentSummary').innerHTML = `
+                <div class="summary-card">
+                    <h3>Ringkasan Pembayaran</h3>
+                    <div class="order-items">${items}</div>
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <span>Rp ${subtotal.toLocaleString()}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Ongkos Kirim</span>
+                        <span>Rp ${shipping.toLocaleString()}</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Total yang harus dibayar</span>
+                        <span>Rp ${total.toLocaleString()}</span>
+                    </div>
+                    <button class="btn-pay" onclick="processPayment()">Bayar Sekarang</button>
+                </div>
+            `;
+        }
+        
+        function processPayment() {
+            const selectedPayment = document.querySelector('input[name="payment"]:checked').value;
+            let paymentMethod = '';
+            
+            switch(selectedPayment) {
+                case 'bank_transfer': paymentMethod = 'Transfer Bank'; break;
+                case 'credit_card': paymentMethod = 'Kartu Kredit'; break;
+                case 'ewallet': paymentMethod = 'E-Wallet'; break;
+                case 'cod': paymentMethod = 'COD'; break;
+            }
+            
+            const currentOrder = JSON.parse(localStorage.getItem('currentOrder'));
+            if(currentOrder) {
+                currentOrder.paymentMethod = paymentMethod;
+                currentOrder.paymentStatus = 'paid';
+                currentOrder.orderStatus = 'processing';
+                
+                let orders = JSON.parse(localStorage.getItem('orders')) || [];
+                const orderIndex = orders.findIndex(o => o.orderId === currentOrder.orderId);
+                if(orderIndex !== -1) {
+                    orders[orderIndex] = currentOrder;
+                } else {
+                    orders.push(currentOrder);
+                }
+                localStorage.setItem('orders', JSON.stringify(orders));
+                localStorage.removeItem('currentOrder');
+            }
+            
+            alert(`Pembayaran dengan ${paymentMethod} berhasil!`);
+            window.location.href = 'order-history.html';
+        }
+        
+        // Load components
+        Promise.all([
+            fetch('../../components/header.html').then(res => res.text()),
+            fetch('../../components/navbar.html').then(res => res.text()),
+            fetch('../../components/footer.html').then(res => res.text())
+        ]).then(([header, navbar, footer]) => {
+            document.getElementById('header-container').innerHTML = header;
+            document.getElementById('navbar-container').innerHTML = navbar;
+            document.getElementById('footer-container').innerHTML = footer;
+            loadPaymentSummary();
+        });
+    </script>
+</body>
+</html>
