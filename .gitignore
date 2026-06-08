@@ -1,0 +1,15 @@
+# Mengabaikan folder node_modules yang isinya ribuan file library
+node_modules/
+
+# Mengabaikan file konfigurasi database sensitif (jika ada)
+.env
+
+# Mengabaikan log error
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Mengabaikan folder hasil build (jika pakai framework seperti Next.js/Vite)
+dist/
+.next/
+*.zip
