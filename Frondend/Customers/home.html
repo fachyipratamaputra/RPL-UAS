@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home - Toko Baju Online</title>
-    <link rel="stylesheet" href="Assets/css/global.css">
-    <link rel="stylesheet" href="Assets/css/Customer/home.css">
+    <link rel="stylesheet" href="../../Assets/css/global.css">
+    <link rel="stylesheet" href="../../Assets/css/customers/home.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -20,7 +20,7 @@
                 <div class="hero-content">
                     <h1>Selamat Datang di <span class="highlight">Toko Baju Online</span></h1>
                     <p>Temukan fashion terbaik untuk penampilanmu</p>
-                    <a href="Frondend/Customers/products.html" class="btn-primary">Mulai Belanja</a>
+                    <a href="../../Frondend/Customers/products.html" class="btn-primary">Mulai Belanja</a>
                 </div>
             </div>
         </section>
@@ -70,10 +70,10 @@
         
         // Load components
         Promise.all([
-            fetch('Components/header.html').then(res => res.text()),
-            fetch('Components/navbar.html').then(res => res.text()),
-            fetch('Components/footer.html').then(res => res.text()),
-            fetch('Components/chatbot-widget.html').then(res => res.text())
+            fetch('../../Assets/Components/header.html').then(res => res.text()),
+            fetch('../../Assets/Components/navbar.html').then(res => res.text()),
+            fetch('../../Assets/Components/footer.html').then(res => res.text()),
+            fetch('../../Assets/Components/chatbot-widget.html').then(res => res.text())
         ]).then(([header, navbar, footer, chatbot]) => {
             document.getElementById('header-container').innerHTML = header;
             document.getElementById('navbar-container').innerHTML = navbar;

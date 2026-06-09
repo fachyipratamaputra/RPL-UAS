@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profil Saya - Toko Baju Online</title>
-    <link rel="stylesheet" href="../../assets/css/global/global.css">
-    <link rel="stylesheet" href="../../assets/css/customer/profile.css">
+    <link rel="stylesheet" href="../../Assets/css/global.css">
+    <link rel="stylesheet" href="../../Assets/css/customers/profile.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -218,9 +218,9 @@
         
         // Load components
         Promise.all([
-            fetch('../../components/header.html').then(res => res.text()),
-            fetch('../../components/navbar.html').then(res => res.text()),
-            fetch('../../components/footer.html').then(res => res.text())
+            fetch('../../Assets/Components/header.html').then(res => res.text()),
+            fetch('../../Assets/Components/navbar.html').then(res => res.text()),
+            fetch('../../Assets/Components/footer.html').then(res => res.text())
         ]).then(([header, navbar, footer]) => {
             document.getElementById('header-container').innerHTML = header;
             document.getElementById('navbar-container').innerHTML = navbar;
