@@ -1,7 +1,9 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const app = express();
 const PORT = 5000;
+
 
 // Import Route yang tadi kita buat
 const authRoutes = require('./routes/authRoutes');
@@ -13,6 +15,7 @@ const chatbotRoutes = require('./routes/chatbotRoutes');
 
 app.use(cors());
 app.use(express.json());
+app.use(express.static(path.join(__dirname, '../frondend')));
 
 // Hubungkan Route ke base path /api/auth
 // Artinya semua rute di dalam authRoutes otomatis diawali dengan /api/auth

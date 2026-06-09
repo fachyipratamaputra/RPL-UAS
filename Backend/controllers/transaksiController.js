@@ -94,3 +94,29 @@ exports.checkout = (req, res) => {
         }
     });
 };
+
+exports.getHistory = (req, res) => {
+    // Ambil dari req.params karena menggunakan /history/:id_user
+    const { id_user } = req.params; 
+
+    if (!id_user) {
+        return res.status(400).json({ message: "ID User tidak ditemukan!" });
+    }
+
+    const query = `
+        SELECT id_order, total_harga, created_at 
+        FROM orders 
+        WHERE id_user = ? 
+        ORDER BY created_at DESC
+    `;
+
+    db.query(query, [id_user], (err, results) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        res.json({
+            success: true,
+            data: results
+        });
+    });
+};
