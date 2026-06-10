@@ -93,10 +93,10 @@
             window.location.href = '../../Frondend/Customers/login.html';
         });
         
-        fetch('../../Assets/Components/header.html')
+        fetch('../../Components/header.html')
             .then(res => res.text())
             .then(data => document.getElementById('header-container').innerHTML = data);
-        fetch('../../Assets/Components/footer.html')
+        fetch('../../Components/footer.html')
             .then(res => res.text())
             .then(data => document.getElementById('footer-container').innerHTML = data);
     </script>

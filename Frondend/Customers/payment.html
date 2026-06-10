@@ -144,9 +144,9 @@
         
         // Load components
         Promise.all([
-            fetch('../../Assets/Components/header.html').then(res => res.text()),
-            fetch('../../Assets/Components/navbar.html').then(res => res.text()),
-            fetch('../../Assets/Components/footer.html').then(res => res.text())
+            fetch('../../Components/header.html').then(res => res.text()),
+            fetch('../../Components/navbar.html').then(res => res.text()),
+            fetch('../../Components/footer.html').then(res => res.text())
         ]).then(([header, navbar, footer]) => {
             document.getElementById('header-container').innerHTML = header;
             document.getElementById('navbar-container').innerHTML = navbar;

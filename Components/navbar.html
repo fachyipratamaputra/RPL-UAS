@@ -16,27 +16,27 @@
                 </div>
                 
                 <div class="search-bar">
-                    <form id="searchForm" action="../../pages/customer/products.html" method="GET">
+                    <form id="searchForm" action="../../Frondend/Customers/products.html" method="GET">
                         <input type="text" name="search" placeholder="Cari produk...">
                         <button type="submit"><i class="fas fa-search"></i></button>
                     </form>
                 </div>
                 
                 <div class="nav-icons">
-                    <a href="../../pages/customer/home.html" class="nav-icon">
+                    <a href="../../Frondend/Customers/home.html" class="nav-icon">
                         <i class="fas fa-home"></i>
                         <span>Beranda</span>
                     </a>
-                    <a href="../../pages/customer/products.html" class="nav-icon">
+                    <a href="../../Frondend/Customers/products.html" class="nav-icon">
                         <i class="fas fa-store"></i>
                         <span>Produk</span>
                     </a>
-                    <a href="../../pages/customer/cart.html" class="nav-icon cart-icon">
+                    <a href="../../Frondend/Customers/cart.html" class="nav-icon cart-icon">
                         <i class="fas fa-shopping-cart"></i>
                         <span>Keranjang</span>
                         <span class="cart-count" id="cartCount">0</span>
                     </a>
-                    <a href="../../pages/customer/order-history.html" class="nav-icon">
+                    <a href="../../Frondend/Customers/order-history.html" class="nav-icon">
                         <i class="fas fa-history"></i>
                         <span>Pesanan</span>
                     </a>
@@ -44,8 +44,8 @@
                         <i class="fas fa-user"></i>
                         <span>Akun</span>
                         <div class="dropdown-menu" id="dropdownMenu">
-                            <a href="../../pages/customer/profile.html"><i class="fas fa-id-card"></i> Profil Saya</a>
-                            <a href="../../pages/customer/order-history.html"><i class="fas fa-box"></i> Pesanan Saya</a>
+                            <a href="../../Frondend/Customers/profile.html"><i class="fas fa-id-card"></i> Profil Saya</a>
+                            <a href="../../Frondend/Customers/order-history.html"><i class="fas fa-box"></i> Pesanan Saya</a>
                             <hr>
                             <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
                         </div>
@@ -60,11 +60,11 @@
         
         <!-- Mobile Menu -->
         <div class="mobile-menu" id="mobileMenu">
-            <a href="../../pages/customer/home.html"><i class="fas fa-home"></i> Beranda</a>
-            <a href="../../pages/customer/products.html"><i class="fas fa-store"></i> Produk</a>
-            <a href="../../pages/customer/cart.html"><i class="fas fa-shopping-cart"></i> Keranjang</a>
-            <a href="../../pages/customer/order-history.html"><i class="fas fa-history"></i> Pesanan</a>
-            <a href="../../pages/customer/profile.html"><i class="fas fa-user"></i> Profil Saya</a>
+            <a href="../../Frondend/Customers/home.html"><i class="fas fa-home"></i> Beranda</a>
+            <a href="../../Frondend/Customers/products.html"><i class="fas fa-store"></i> Produk</a>
+            <a href="../../Frondend/Customers/cart.html"><i class="fas fa-shopping-cart"></i> Keranjang</a>
+            <a href="../../Frondend/Customers/order-history.html"><i class="fas fa-history"></i> Pesanan</a>
+            <a href="../../Frondend/Customers/profile.html"><i class="fas fa-user"></i> Profil Saya</a>
             <a href="#" id="mobileLogoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </div>
     </nav>
@@ -272,7 +272,7 @@
             if(userMenu) {
                 if(!isLoggedIn) {
                     userMenu.innerHTML = '<i class="fas fa-sign-in-alt"></i><span>Login</span>';
-                    userMenu.onclick = () => window.location.href = '../../pages/customer/login.html';
+                    userMenu.onclick = () => window.location.href = '../../Frondend/Customers/login.html';
                 }
             }
         }
