@@ -96,24 +96,34 @@ exports.checkout = (req, res) => {
 };
 
 exports.getHistory = (req, res) => {
-    // Ambil dari req.params karena menggunakan /history/:id_user
     const { id_user } = req.params; 
 
     if (!id_user) {
         return res.status(400).json({ message: "ID User tidak ditemukan!" });
     }
 
+    // Query JOIN untuk mendapatkan nota SEKALIGUS rincian produk yang dibeli
     const query = `
-        SELECT id_order, total_harga, created_at 
-        FROM orders 
-        WHERE id_user = ? 
-        ORDER BY created_at DESC
+        SELECT 
+            o.id_order, o.created_at, o.total_harga, o.status,
+            d.jumlah, d.subtotal,
+            p.nama_produk, p.gambar,
+            pay.metode, pay.status_pembayaran
+        FROM orders o
+        JOIN detail_order d ON o.id_order = d.id_order
+        JOIN produk p ON d.id_product = p.id_product
+        LEFT JOIN pembayaran pay ON o.id_order = pay.id_order
+        WHERE o.id_user = ?
+        ORDER BY o.created_at DESC
     `;
 
     db.query(query, [id_user], (err, results) => {
         if (err) {
             return res.status(500).json({ error: err.message });
         }
+        
+        // Catatan: Karena hasil query JOIN akan menghasilkan baris berulang untuk order yang sama,
+        // data ini biasanya diformat atau langsung dikirim ke FE untuk dirender sesuai struktur barisnya.
         res.json({
             success: true,
             data: results
