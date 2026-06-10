@@ -1,12 +1,3 @@
-/**
- * dashboard.js - Admin Dashboard
- * Terhubung dengan: pages/admin/dashboard.html
- * Dependensi: Chart.js, localStorage
- */
-
-// ========================================
-// ADMIN DASHBOARD MANAGEMENT SYSTEM
-// ========================================
 
 class AdminDashboard {
     constructor() {
