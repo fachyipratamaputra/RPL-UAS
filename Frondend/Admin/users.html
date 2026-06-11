@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kelola Pengguna - Admin Toko Baju Online</title>
-    <link rel="stylesheet" href="../../assets/css/global/global.css">
-    <link rel="stylesheet" href="../../assets/css/admin/users.css">
+    <link rel="stylesheet" href="../../Assets/css/global.css">
+    <link rel="stylesheet" href="../../Assets/css/admin/users.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -187,9 +187,9 @@
         
         // Load components
         Promise.all([
-            fetch('../../components/sidebar-admin.html').then(res => res.text()),
-            fetch('../../components/header.html').then(res => res.text()),
-            fetch('../../components/footer.html').then(res => res.text())
+            fetch('../../Components/sidebar-admin.html').then(res => res.text()),
+            fetch('../../Components/header.html').then(res => res.text()),
+            fetch('../../Components/footer.html').then(res => res.text())
         ]).then(([sidebar, header, footer]) => {
             document.getElementById('sidebar-container').innerHTML = sidebar;
             document.getElementById('header-container').innerHTML = header;

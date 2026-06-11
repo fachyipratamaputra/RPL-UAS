@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Toko Baju Online</title>
-    <link rel="stylesheet" href="../../assets/css/global/global.css">
-    <link rel="stylesheet" href="../../assets/css/customer/login.css">
+    <link rel="stylesheet" href="../../Assets/css/global.css">
+    <link rel="stylesheet" href="../../Assets/css/customers/login.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -41,7 +41,7 @@
             </form>
             
             <div class="auth-footer">
-                <p>Belum punya akun? <a href="register.html">Daftar Sekarang</a></p>
+                <p>Belum punya akun? <a href="../../Frondend/Customers/register.html">Daftar Sekarang</a></p>
             </div>
             
             <div class="social-login">
@@ -72,17 +72,17 @@
                     localStorage.setItem('rememberMe', 'true');
                 }
                 alert('Login berhasil!');
-                window.location.href = 'home.html';
+                window.location.href = '../../Frontend/Customers/home.html';
             } else {
                 alert('Harap isi semua field!');
             }
         });
         
         // Load components
-        fetch('../../components/header.html')
+        fetch('../../Components/header.html')
             .then(res => res.text())
             .then(data => document.getElementById('header-container').innerHTML = data);
-        fetch('../../components/footer.html')
+        fetch('../../Components/footer.html')
             .then(res => res.text())
             .then(data => document.getElementById('footer-container').innerHTML = data);
     </script>

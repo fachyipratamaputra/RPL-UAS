@@ -1,12 +1,3 @@
-/**
- * users.js - Admin Users Management
- * Terhubung dengan: pages/admin/users.html
- * Dependensi: localStorage
- */
-
-// ========================================
-// ADMIN USERS MANAGEMENT SYSTEM
-// ========================================
 
 class AdminUsers {
     constructor() {
