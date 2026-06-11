@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -11,6 +12,7 @@ const produkRoutes = require('./routes/produkRoutes');
 const transaksiRoutes = require('./routes/transaksiRoutes');
 const laporanRoutes = require('./routes/laporanRoutes');
 const chatbotRoutes = require('./routes/chatbotRoutes');
+const cartRoutes = require('./routes/cartRoutes');
 
 
 app.use(cors());
@@ -24,6 +26,7 @@ app.use('/api/produk', produkRoutes);
 app.use('/api/transaksi', transaksiRoutes);
 app.use('/api/laporan', laporanRoutes);
 app.use('/api/chatbot', chatbotRoutes);
+app.use('/api/cart', cartRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server Toko Baju running di http://localhost:${PORT}`);
