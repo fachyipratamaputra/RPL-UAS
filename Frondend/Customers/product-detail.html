@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,127 +9,229 @@
     <link rel="stylesheet" href="../../Assets/css/customers/product-detail.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+
 <body>
     <div id="header-container"></div>
     <div id="navbar-container"></div>
-    
+
     <main class="detail-main">
         <div class="container">
-            <div class="product-detail" id="productDetail"></div>
+            <div id="productDetailContainer" class="product-detail">
+                <div style="text-align: center; padding: 50px; grid-column: 1/-1;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 2em; color: #4F46E5;"></i>
+                    <p style="margin-top: 10px; color: #6b7280;">Memuat detail produk...</p>
+                </div>
+            </div>
         </div>
     </main>
-    
+
     <div id="footer-container"></div>
-    
+
     <script>
-        const products = {
-            1: {id: 1, name: 'Kaos Polos Premium', price: 150000, category: 'wanita', size: ['S','M','L','XL'], color: ['Hitam','Putih','Biru'], stock: 50, description: 'Kaos polos premium dengan bahan katun yang nyaman dipakai sehari-hari.', image: 'https://via.placeholder.com/500'},
-            2: {id: 2, name: 'Kemeja Flanel Pria', price: 250000, category: 'pria', size: ['M','L','XL'], color: ['Merah','Hitam','Coklat'], stock: 30, description: 'Kemeja flanel casual cocok untuk gaya sehari-hari.', image: 'https://via.placeholder.com/500'},
-            3: {id: 3, name: 'Dress Wanita Elegan', price: 350000, category: 'wanita', size: ['S','M','L'], color: ['Hitam','Burgundy'], stock: 25, description: 'Dress elegan untuk acara formal dan semi formal.', image: 'https://via.placeholder.com/500'}
-        };
-        
-        const urlParams = new URLSearchParams(window.location.search);
-        const productId = urlParams.get('id');
-        const product = products[productId];
-        
-        function renderProduct() {
-            const container = document.getElementById('productDetail');
-            if(!product) {
-                container.innerHTML = '<h2>Produk tidak ditemukan</h2><a href="products.html">Kembali ke Produk</a>';
+        // 1. Konfigurasi URL Backend (Port disamakan ke 5000 sesuai file products.html kamu)
+        const API_URL = 'http://localhost:5000/api';
+        let currentProduct = null;
+
+        // 2. Ambil ID dari Parameter URL secara aman
+        function getProductIdFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            let id = urlParams.get('id');
+            if (id) {
+                id = id.split(':')[0]; // Bersihkan sisa karakter aneh seperti ":1"
+            }
+            return id;
+        }
+
+        // 3. Mengambil detail data produk tunggal dari backend Express
+        async function fetchProductDetail() {
+            const productId = getProductIdFromUrl();
+            if (!productId) {
+                renderError('ID Produk tidak valid atau tidak ditemukan di URL.');
                 return;
             }
-            
+
+            try {
+                const response = await fetch(`${API_URL}/produk/${productId}`);
+                if (!response.ok) {
+                    throw new Error(`Status error: ${response.status}`);
+                }
+
+                const product = await response.json();
+                currentProduct = Array.isArray(product) ? product[0] : product;
+
+                if (!currentProduct || !currentProduct.id_product) {
+                    renderError('Produk tidak ditemukan dalam database.');
+                    return;
+                }
+
+                renderProductDetail();
+            } catch (error) {
+                console.error('Gagal mengambil data detail produk:', error);
+                renderError('Produk tidak ditemukan atau gagal memuat data.');
+            }
+        }
+
+        // 4. Menampilkan pesan error jika data bermasalah
+        function renderError(message) {
+            const container = document.getElementById('productDetailContainer');
+            container.style.gridTemplateColumns = "1fr";
+            container.innerHTML = `
+                <div style="text-align: center; padding: 40px 20px;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 3em; color: #ef4444; margin-bottom: 15px;"></i>
+                    <h2 style="color: #1f2937; font-size: 1.8em; margin-bottom: 15px;">${message}</h2>
+                    <a href="products.html" style="color: #4F46E5; text-decoration: underline; font-weight: 600;">Kembali ke Katalog Produk</a>
+                </div>
+            `;
+        }
+
+        // 5. Menampilkan komponen detail produk ke HTML
+        function renderProductDetail() {
+            const container = document.getElementById('productDetailContainer');
+            container.removeAttribute('style');
+
+            const hargaAsli = currentProduct.harga;
+            const diskonPersen = currentProduct.diskon || 0;
+            const hargaFinal = diskonPersen > 0 ? hargaAsli - (hargaAsli * diskonPersen / 100) : hargaAsli;
+            const gambarProduk = currentProduct.gambar || 'https://placehold.co/500x600?text=No+Image';
+
             container.innerHTML = `
                 <div class="product-gallery">
-                    <img src="${product.image}" alt="${product.name}">
-                </div>
-                <div class="product-info">
-                    <h1>${product.name}</h1>
-                    <div class="product-price">Rp ${product.price.toLocaleString()}</div>
-                    <div class="product-rating">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
-                        <span>(4.5 dari 120 ulasan)</span>
+                    <div class="main-image">
+                        <img src="${gambarProduk}" alt="${currentProduct.nama_produk}">
                     </div>
-                    <p class="product-description">${product.description}</p>
+                </div>
+
+                <div class="product-info">
+                    <h1>${currentProduct.nama_produk}</h1>
                     
+                    <div class="product-price">
+                        Rp ${hargaFinal.toLocaleString('id-ID')}
+                        ${diskonPersen > 0 ? `<span style="text-decoration: line-through; color: #9ca3af; font-size: 16px; margin-left: 10px; font-weight: 400;">Rp ${hargaAsli.toLocaleString('id-ID')}</span>` : ''}
+                    </div>
+
+                    <div class="product-description">
+                        <p>${currentProduct.deskripsi || 'Tidak ada deskripsi spesifik untuk koleksi produk ini.'}</p>
+                    </div>
+
                     <div class="product-options">
                         <div class="option-group">
-                            <label>Ukuran:</label>
-                            <div class="size-options">
-                                ${product.size.map(s => `<button class="size-btn">${s}</button>`).join('')}
-                            </div>
-                        </div>
-                        
-                        <div class="option-group">
-                            <label>Warna:</label>
-                            <div class="color-options">
-                                ${product.color.map(c => `<button class="color-btn" style="background: ${c.toLowerCase()}">${c}</button>`).join('')}
-                            </div>
-                        </div>
-                        
-                        <div class="option-group">
-                            <label>Jumlah:</label>
+                            <label>Jumlah Pembelian</label>
                             <div class="quantity-selector">
-                                <button class="qty-btn minus">-</button>
-                                <input type="number" id="quantity" value="1" min="1" max="${product.stock}">
-                                <button class="qty-btn plus">+</button>
+                                <button type="button" class="qty-btn" onclick="changeQty(-1)">-</button>
+                                <input type="number" id="quantity" value="1" readonly>
+                                <button type="button" class="qty-btn" onclick="changeQty(1)">+</button>
+                                <span style="font-size: 14px; color: ${currentProduct.stok > 0 ? '#10B981' : '#EF4444'}; font-weight: 500; margin-left: 10px;">
+                                    (${currentProduct.stok > 0 ? `${currentProduct.stok} Pcs tersedia` : 'Stok Habis'})
+                                </span>
                             </div>
-                        </div>
-                        
-                        <div class="product-actions">
-                            <button class="btn-add-cart" onclick="addToCart()"><i class="fas fa-shopping-cart"></i> Tambah ke Keranjang</button>
-                            <button class="btn-buy-now" onclick="buyNow()"><i class="fas fa-bolt"></i> Beli Sekarang</button>
                         </div>
                     </div>
-                    
+
+                    <div class="product-actions">
+                        <button type="button" class="btn-add-cart" onclick="handleAddToCartClick()">
+                            <i class="fas fa-shopping-cart"></i> Masukkan Keranjang
+                        </button>
+                    </div>
+
                     <div class="product-meta">
-                        <p>Stok: ${product.stock} pcs</p>
-                        <p>SKU: SKU-${product.id}${Date.now()}</p>
-                        <p>Kategori: ${product.category}</p>
+                        <p><strong>Kategori:</strong> ${currentProduct.kategori || 'Koleksi Umum'}</p>
+                        <p><strong>Status Logistik:</strong> Siap Dikirim Ke Seluruh Indonesia</p>
                     </div>
                 </div>
             `;
-            
-            // Quantity selector
-            document.querySelector('.plus')?.addEventListener('click', () => {
-                const qty = document.getElementById('quantity');
-                if(parseInt(qty.value) < product.stock) qty.value = parseInt(qty.value) + 1;
-            });
-            document.querySelector('.minus')?.addEventListener('click', () => {
-                const qty = document.getElementById('quantity');
-                if(parseInt(qty.value) > 1) qty.value = parseInt(qty.value) - 1;
-            });
         }
-        
-        function addToCart() {
-            const quantity = parseInt(document.getElementById('quantity').value);
-            let cart = JSON.parse(localStorage.getItem('cart')) || [];
-            const existing = cart.find(item => item.id === product.id);
-            if(existing) {
-                existing.quantity += quantity;
-            } else {
-                cart.push({id: product.id, name: product.name, price: product.price, quantity: quantity});
+
+        // 6. Fungsi Pengendali Kuantitas (+/-)
+        function changeQty(amount) {
+            const qtyInput = document.getElementById('quantity');
+            let currentQty = parseInt(qtyInput.value) || 1;
+            currentQty += amount;
+
+            const maxStok = currentProduct ? currentProduct.stok : 1;
+            if (currentQty < 1) currentQty = 1;
+            if (currentQty > maxStok) currentQty = maxStok;
+
+            qtyInput.value = currentQty;
+        }
+
+        // 7. Handler Event saat Tombol Keranjang Diklik
+        function handleAddToCartClick() {
+            if (!currentProduct || currentProduct.stok <= 0) {
+                alert('Maaf, produk tidak dapat ditambahkan karena stok habis.');
+                return;
             }
-            localStorage.setItem('cart', JSON.stringify(cart));
-            alert(`${quantity} ${product.name} ditambahkan ke keranjang!`);
+
+            const qtyInput = document.getElementById('quantity');
+            const quantityToAdd = parseInt(qtyInput.value) || 1;
+
+            // Langsung panggil fungsi push database
+            tambahKeKeranjangDatabase(currentProduct.id_product, quantityToAdd);
         }
-        
-        function buyNow() {
-            addToCart();
-            window.location.href = 'checkout.html';
+
+        // 8. Menyimpan Item ke Database Keranjang via API
+        function tambahKeKeranjangDatabase(idProduct, jumlahDipilih) {
+            const token = localStorage.getItem('token');
+
+            if (!token) {
+                alert("Silakan login terlebih dahulu untuk menambah keranjang!");
+                window.location.href = "../../Frondend/Customers/login.html";
+                return;
+            }
+
+            fetch(`${API_URL}/cart/add`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    id_product: idProduct,
+                    jumlah: jumlahDipilih
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    alert("Gagal memasukkan keranjang: " + data.error);
+                } else {
+                    alert(`Berhasil memasukkan ${jumlahDipilih} unit produk ke keranjang!`);
+                    
+                    // Update visual badge angka merah di navbar secara lokal
+                    updateVisualBadgeLokal(jumlahDipilih);
+                }
+            })
+            .catch(err => console.error("Error saat add to cart:", err));
         }
-        
-        // Load components
-        Promise.all([
-            fetch('../../Components/header.html').then(res => res.text()),
-            fetch('../../Components/navbar.html').then(res => res.text()),
-            fetch('../../Components/footer.html').then(res => res.text())
-        ]).then(([header, navbar, footer]) => {
-            document.getElementById('header-container').innerHTML = header;
-            document.getElementById('navbar-container').innerHTML = navbar;
-            document.getElementById('footer-container').innerHTML = footer;
-            renderProduct();
+
+        // 9. Fungsi Manipulasi Visual Badge Angka Merah di Navbar secara Lokal
+        function updateVisualBadgeLokal(jumlahDitambahkan) {
+            const cartCountElements = document.querySelectorAll('.cart-count');
+            
+            cartCountElements.forEach(el => {
+                if (el) {
+                    let currentCount = parseInt(el.textContent) || 0;
+                    let newCount = currentCount + parseInt(jumlahDitambahkan);
+                    el.textContent = newCount;
+                    el.style.display = newCount === 0 ? 'none' : 'flex';
+                }
+            });
+        }
+
+        // 10. Lifecycle Load Komponen Layout & Init Data Detail
+        document.addEventListener('DOMContentLoaded', function () {
+            Promise.all([
+                fetch('../../Components/header.html').then(res => res.text()).catch(() => ''),
+                fetch('../../Components/navbar.html').then(res => res.text()).catch(() => ''),
+                fetch('../../Components/footer.html').then(res => res.text()).catch(() => '')
+            ]).then(([header, navbar, footer]) => {
+                if (document.getElementById('header-container')) document.getElementById('header-container').innerHTML = header;
+                if (document.getElementById('navbar-container')) document.getElementById('navbar-container').innerHTML = navbar;
+                if (document.getElementById('footer-container')) document.getElementById('footer-container').innerHTML = footer;
+
+                fetchProductDetail();
+            });
         });
     </script>
 </body>
+
 </html>

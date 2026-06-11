@@ -1,48 +1,68 @@
 const db = require('../config/db');
+// Kita balik pakai Axios karena OpenRouter adalah REST API biasa
 const axios = require('axios');
 
-const GEMINI_API_KEY = "AIzaSyDKeOT-0eeY7gkRfaQioVBKmkGxD1F6LFY";
+// GANTI DENGAN API KEY OPENROUTER KAMU (sk-or-v1-...)
+const OPENROUTER_API_KEY = "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";
 
 exports.handleChat = (req, res) => {
-    const { pesan } = req.body;
+    const pesan = req.body.pesan || req.body.message;
 
-    if (!pesan) {
-        return res.json({ balasan: "Halo! Ada yang bisa aku bantu? Yuk tanyain seputar stok baju atau diskon!" });
+    if (!pesan || pesan.trim() === "") {
+        return res.json({ 
+            balasan: "Halo! Ada yang bisa aku bantu? Yuk tanyain seputar stok baju atau diskon!",
+            mode: "Validation Triggered"
+        });
     }
 
-    // Ambil data produk terupdate dari database MySQL untuk bahan AI maupun Hybrid
-    db.query('SELECT nama_produk, harga, stok, diskon, kategori FROM produk', async (err, results) => {
+    // Ambil data produk terupdate dari database MySQL
+    db.query('SELECT nama_produk, harga, stok, diskon, kategori, deskripsi FROM produk', async (err, results) => {
         if (err) {
             console.error("MySQL Error:", err.message);
             return res.status(500).json({ error: "Gagal mengambil data produk" });
         }
 
         const produkResults = results || [];
-
-        // Format data dari MySQL jadi teks string kasar untuk AI
         const dataStokToko = produkResults.map(p =>
             `Nama: ${p.nama_produk} | Kategori: ${p.kategori} | Harga: Rp${p.harga} | Stok: ${p.stok} | Diskon: ${p.diskon}%`
         ).join('\n');
 
         try {
-            // --- JALUR UTAMA: MENEMBAK GEMINI AI ---
-            const urlGemini = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+            // --- JALUR UTAMA: MENEMBAK OPENROUTER (GEMINI 1.5 FLASH) ---
+            const URL_OPENROUTER = "https://openrouter.ai/api/v1/chat/completions";
 
             const promptLengkap = `Kamu adalah Chatbot Kasir Virtual yang ramah untuk Toko Baju Online Kelompok 6.
-            Jawab pertanyaan customer dengan santun dan kasual berdasarkan data ini saja:
+            Jawab pertanyaan customer dengan santun, kasual, singkat, dan informatif berdasarkan data produk asli toko kami ini saja:
             ${dataStokToko}
+            
             Pertanyaan Customer: "${pesan}"`;
 
-            const responseAIdirect = await axios.post(urlGemini, {
-                contents: [{ parts: [{ text: promptLengkap }] }]
-            }, { timeout: 4000 });
+            // Struktur request OpenRouter mengikuti standar OpenAI format
+            const responseOpenRouter = await axios.post(URL_OPENROUTER, {
+                model: "google/gemini-1.5-flash:free", // Tetap panggil otak Gemini lewat OpenRouter
+                messages: [
+                    { role: "user", content: promptLengkap }
+                ]
+            }, {
+                headers: {
+                    "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
+                    "Content-Type": "application/json"
+                },
+                timeout: 5000 // Batas tunggu 5 detik
+            });
 
-            const balasanAI = responseAIdirect.data.candidates[0].content.parts[0].text;
-            return res.json({ balasan: balasanAI, mode: "Gemini AI Terkoneksi" });
+            // Cara ekstrak teks jawaban dari OpenRouter
+            const balasanAI = responseOpenRouter.data.choices[0].message.content;
+            return res.json({ balasan: balasanAI, mode: "Gemini via OpenRouter Terkoneksi" });
 
         } catch (error) {
-            // --- JALUR PENYELAMAT (FALLBACK): JIKA KUOTA AI HABIS / ERROR ---
-            console.log("⚠️ Jalur AI Terganggu (Quota Habis/Error). Mengaktifkan Logika Hybrid Lokal...");
+            // --- JALUR PENYELAMAT (FALLBACK HYBRID LOKAL) ---
+            console.log("⚠️ Jalur AI Terganggu. Mengaktifkan Logika Hybrid Lokal...");
+            if (error.response) {
+                console.error("👉 Error OpenRouter:", error.response.status, error.response.data);
+            } else {
+                console.error("👉 Error Sistem:", error.message);
+            }
 
             const inputUser = pesan.toLowerCase();
 
@@ -59,8 +79,8 @@ exports.handleChat = (req, res) => {
                 });
             }
 
-            // 2. Skenario Stok / Kategori Cowok-Cewek
-            else if (inputUser.includes('stok') || inputUser.includes('baju') || inputUser.includes('cowok') || inputUser.includes('cewek') || inputUser.includes('produk') || inputUser.includes('lihat')) {
+            // 2. Skenario Stok / Katalog
+            else if (inputUser.includes('stok') || inputUser.includes('baju') || inputUser.includes('cowok') || inputUser.includes('cewek') || inputUser.includes('pria') || inputUser.includes('wanita') || inputUser.includes('produk') || inputUser.includes('lihat')) {
                 let filtered = produkResults;
                 if (inputUser.includes('cowok') || inputUser.includes('pria')) {
                     filtered = produkResults.filter(p => p.kategori.toLowerCase().includes('pria'));
@@ -75,61 +95,9 @@ exports.handleChat = (req, res) => {
                 });
             }
 
-            // 3. BARU ✨: Skenario Cek Pesanan / Order
-            else if (inputUser.includes('pesanan') || inputUser.includes('order') || inputUser.includes('status')) {
-                return res.json({
-                    balasan: `Untuk mengecek status pesanan kakak secara real-time, silakan kunjungi halaman **Riwayat Pesanan** melalui menu navigasi di atas, atau klik link berikut: <a href="order-history.html">Riwayat Pesanan Saya</a>. Pastikan sudah login ya kak! 😊`,
-                    mode: "Backup Hybrid Active"
-                });
-            }
-
-            // 4. BARU ✨: Skenario Info Pengiriman / Ongkir
-            else if (inputUser.includes('pengiriman') || inputUser.includes('ongkir') || inputUser.includes('kirim') || inputUser.includes('shipping')) {
-                return res.json({
-                    balasan: `Kami melayani pengiriman ke seluruh wilayah Indonesia menggunakan J&T, JNE, dan SiCepat. 🚚\n\n- **Ongkos Kirim:** Rp15.000 - Rp30.000 (tergantung lokasi alamat).\n- **Promo Spesial:** Minimal belanja Rp200.000 gratis ongkir ke seluruh Indonesia!`,
-                    mode: "Backup Hybrid Active"
-                });
-            }
-
-            // --- KODE BARU (EDIT MENJADI SEPERTI INI) ---
-            else if (inputUser.includes('ukuran') || inputUser.includes('size') || inputUser.includes('panduan')) {
-                // 1. Pastikan query SQL kamu di atas sudah menarik kolom 'deskripsi'
-                // Jika belum, pastikan query di bagian atas file diubah menjadi: 
-                // db.query('SELECT nama_produk, harga, stok, diskon, kategori, deskripsi FROM produk', ...)
-
-                // 2. Cari apakah ada produk yang deskripsinya mengandung info ukuran/size
-                const produkDenganUkuran = produkResults.filter(p =>
-                    p.deskripsi && (
-                        p.deskripsi.toLowerCase().includes('ukuran') ||
-                        p.deskripsi.toLowerCase().includes('size') ||
-                        p.deskripsi.toLowerCase().includes('ld')
-                    )
-                );
-
-                if (produkDenganUkuran.length > 0) {
-                    // Gabungkan deskripsi dari produk-produk yang relevan untuk ditampilkan oleh bot
-                    let balasanDeskripsi = `Berikut adalah detail panduan ukuran produk yang kami ambil dari deskripsi toko:\n\n`;
-
-                    produkDenganUkuran.forEach(p => {
-                        balasanDeskripsi += `👕 **${p.nama_produk}**:\n${p.deskripsi}\n\n`;
-                    });
-
-                    return res.json({
-                        balasan: balasanDeskripsi.trim(),
-                        mode: "Database Live Sync"
-                    });
-                } else {
-                    // Fallback jika ternyata isi kolom deskripsi di database masih kosong semua
-                    return res.json({
-                        balasan: "Saat ini detail ukuran belum tercantum di deskripsi produk database kami. Silakan hubungi admin ya kak! ✨",
-                        mode: "Database Fallback Empty"
-                    });
-                }
-            }
-
-            // 6. Jalur Default (Menu Utama)
+            // 3. Jalur Default (Menu Utama)
             return res.json({
-                balasan: "Halo! Selamat datang di Kasir Otomatis Kelompok 6. 👋\n\nAda yang bisa dibantu? Silakan ketik kata kunci seperti *'diskon'*, *'stok baju'*, *'cek pesanan'*, atau *'info pengiriman'* ya!",
+                balasan: "Halo! Selamat datang di Kasir Otomatis Kelompok 6. 👋\n\nAda yang bisa dibantu? Silakan ketik kata kunci seperti *'diskon'* atau *'stok baju'* ya!",
                 mode: "Backup Hybrid Active"
             });
         }

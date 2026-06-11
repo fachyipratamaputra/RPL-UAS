@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,10 +9,11 @@
     <link rel="stylesheet" href="../../Assets/css/customers/payment.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+
 <body>
     <div id="header-container"></div>
     <div id="navbar-container"></div>
-    
+
     <main class="payment-main">
         <div class="container">
             <h1>Pembayaran</h1>
@@ -53,95 +55,124 @@
                         </label>
                     </div>
                 </div>
-                
+
                 <div class="payment-summary" id="paymentSummary"></div>
             </div>
         </div>
     </main>
-    
+
     <div id="footer-container"></div>
-    
+
     <script>
         const products = {
-            1: {name: 'Kaos Polos Premium', price: 150000},
-            2: {name: 'Kemeja Flanel Pria', price: 250000},
-            3: {name: 'Dress Wanita Elegan', price: 350000},
-            4: {name: 'Jaket Denim', price: 450000}
+            1: { name: 'Kaos Polos Premium', price: 150000 },
+            2: { name: 'Kemeja Flanel Pria', price: 250000 },
+            3: { name: 'Dress Wanita Elegan', price: 350000 },
+            4: { name: 'Jaket Denim', price: 450000 }
         };
-        
+
         function loadPaymentSummary() {
             const currentOrder = JSON.parse(localStorage.getItem('currentOrder'));
-            let subtotal = 0;
-            let items = '';
-            
-            if(currentOrder && currentOrder.items) {
+
+            if (!currentOrder) {
+                document.getElementById('paymentSummary').innerHTML = '<p>Tidak ada data pesanan aktif.</p>';
+                return;
+            }
+
+            let itemsHTML = '';
+
+            // Loop langsung memakai data item asli yang di-pass dari cart & checkout
+            if (currentOrder.items && currentOrder.items.length > 0) {
                 currentOrder.items.forEach(item => {
-                    const product = products[item.id];
-                    const itemTotal = product.price * item.quantity;
-                    subtotal += itemTotal;
-                    items += `<div class="order-item">
-                        <span>${product.name} x ${item.quantity}</span>
-                        <span>Rp ${itemTotal.toLocaleString()}</span>
-                    </div>`;
+                    const harga = Number(item.harga) || 0;
+                    const diskon = Number(item.diskon) || 0;
+                    const qty = Number(item.kuantitas || item.quantity) || 1;
+                    const hargaFinal = diskon > 0 ? harga * (1 - diskon / 100) : harga;
+                    const itemTotal = hargaFinal * qty;
+
+                    itemsHTML += `
+            <div class="order-item">
+                <span>${item.nama_produk} x ${qty}</span>
+                <span>Rp ${itemTotal.toLocaleString('id-ID')}</span>
+            </div>`;
                 });
             }
-            
-            const shipping = 20000;
-            const total = subtotal + shipping;
-            
+
+            const subtotal = currentOrder.subtotal || 0;
+            const ongkir = currentOrder.ongkir || 0;
+            const total = currentOrder.total || 0;
+
             document.getElementById('paymentSummary').innerHTML = `
-                <div class="summary-card">
-                    <h3>Ringkasan Pembayaran</h3>
-                    <div class="order-items">${items}</div>
-                    <div class="summary-row">
-                        <span>Subtotal</span>
-                        <span>Rp ${subtotal.toLocaleString()}</span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Ongkos Kirim</span>
-                        <span>Rp ${shipping.toLocaleString()}</span>
-                    </div>
-                    <div class="summary-row total">
-                        <span>Total yang harus dibayar</span>
-                        <span>Rp ${total.toLocaleString()}</span>
-                    </div>
-                    <button class="btn-pay" onclick="processPayment()">Bayar Sekarang</button>
-                </div>
-            `;
+        <div class="summary-card">
+            <h3>Ringkasan Pembayaran</h3>
+            <div class="order-items">${itemsHTML}</div>
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span>Rp ${subtotal.toLocaleString('id-ID')}</span>
+            </div>
+            <div class="summary-row">
+                <span>Ongkos Kirim</span>
+                <span>Rp ${ongkir.toLocaleString('id-ID')}</span>
+            </div>
+            <div class="summary-row total">
+                <span>Total yang harus dibayar</span>
+                <span>Rp ${total.toLocaleString('id-ID')}</span>
+            </div>
+            <button class="btn-pay" onclick="processPayment()">Bayar Sekarang</button>
+        </div>
+    `;
         }
-        
+
         function processPayment() {
-            const selectedPayment = document.querySelector('input[name="payment"]:checked').value;
+            const selectedPaymentElement = document.querySelector('input[name="payment"]:checked');
+            if (!selectedPaymentElement) {
+                alert('Pilih metode pembayaran terlebih dahulu!');
+                return;
+            }
+
+            const selectedPayment = selectedPaymentElement.value;
             let paymentMethod = '';
-            
-            switch(selectedPayment) {
+
+            switch (selectedPayment) {
                 case 'bank_transfer': paymentMethod = 'Transfer Bank'; break;
                 case 'credit_card': paymentMethod = 'Kartu Kredit'; break;
                 case 'ewallet': paymentMethod = 'E-Wallet'; break;
                 case 'cod': paymentMethod = 'COD'; break;
             }
-            
+
             const currentOrder = JSON.parse(localStorage.getItem('currentOrder'));
-            if(currentOrder) {
+            if (currentOrder) {
                 currentOrder.paymentMethod = paymentMethod;
                 currentOrder.paymentStatus = 'paid';
                 currentOrder.orderStatus = 'processing';
-                
+
                 let orders = JSON.parse(localStorage.getItem('orders')) || [];
-                const orderIndex = orders.findIndex(o => o.orderId === currentOrder.orderId);
-                if(orderIndex !== -1) {
-                    orders[orderIndex] = currentOrder;
-                } else {
-                    orders.push(currentOrder);
-                }
+                orders.push(currentOrder);
+
                 localStorage.setItem('orders', JSON.stringify(orders));
                 localStorage.removeItem('currentOrder');
+                localStorage.removeItem('cart'); // Bersihkan keranjang local setelah bayar
             }
-            
+
             alert(`Pembayaran dengan ${paymentMethod} berhasil!`);
             window.location.href = 'order-history.html';
         }
-        
+
+        // Menggandeng pemuatan komponen navbar & data summary secara bersamaan
+        document.addEventListener('DOMContentLoaded', () => {
+            Promise.all([
+                fetch('../../Components/header.html').then(res => res.text()).catch(() => ''),
+                fetch('../../Components/navbar.html').then(res => res.text()).catch(() => ''),
+                fetch('../../Components/footer.html').then(res => res.text()).catch(() => '')
+            ]).then(([header, navbar, footer]) => {
+                if (header) document.getElementById('header-container').innerHTML = header;
+                if (navbar) document.getElementById('navbar-container').innerHTML = navbar;
+                if (footer) document.getElementById('footer-container').innerHTML = footer;
+
+                loadPaymentSummary();
+            });
+        });
+
         // Load components
         Promise.all([
             fetch('../../Components/header.html').then(res => res.text()),
@@ -152,7 +183,17 @@
             document.getElementById('navbar-container').innerHTML = navbar;
             document.getElementById('footer-container').innerHTML = footer;
             loadPaymentSummary();
+            // Di script payment.html
+            document.addEventListener('DOMContentLoaded', () => {
+                const finalTotal = localStorage.getItem('finalTotal');
+                const subtotal = localStorage.getItem('subtotal');
+
+                // Tampilkan di Ringkasan Pembayaran
+                document.getElementById('displaySubtotal').innerText = `Rp ${parseInt(subtotal).toLocaleString()}`;
+                document.getElementById('displayTotalBayar').innerText = `Rp ${parseInt(finalTotal).toLocaleString()}`;
+            });
         });
     </script>
 </body>
+
 </html>

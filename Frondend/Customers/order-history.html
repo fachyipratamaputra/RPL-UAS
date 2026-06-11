@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,77 +9,110 @@
     <link rel="stylesheet" href="../../Assets/css/customers/order-history.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+
 <body>
     <div id="header-container"></div>
     <div id="navbar-container"></div>
-    
+
     <main class="history-main">
         <div class="container">
             <h1>Riwayat Pesanan</h1>
             <div id="ordersList" class="orders-list"></div>
         </div>
     </main>
-    
+
     <div id="footer-container"></div>
-    
+
     <script>
-        const products = {
-            1: {name: 'Kaos Polos Premium', price: 150000},
-            2: {name: 'Kemeja Flanel Pria', price: 250000},
-            3: {name: 'Dress Wanita Elegan', price: 350000},
-            4: {name: 'Jaket Denim', price: 450000}
-        };
-        
-        function loadOrders() {
-            const orders = JSON.parse(localStorage.getItem('orders')) || [];
+        // PERBAIKAN: Membaca base path rute transaksi dengan benar
+        const API_URL = 'http://localhost:5000/api/transaksi';
+
+        // Fungsi utama mengambil riwayat pesanan nyata dari database backend
+        async function loadOrders() {
+            const token = localStorage.getItem('token');
             const container = document.getElementById('ordersList');
-            
-            if(orders.length === 0) {
-                container.innerHTML = '<div class="empty-orders"><i class="fas fa-box-open"></i><p>Belum ada pesanan</p><a href="products.html" class="btn-primary">Mulai Belanja</a></div>';
+            console.log("Token yang ditemukan di browser:", token);
+
+            if (!token) {
+                alert('Silakan login terlebih dahulu untuk melihat riwayat pesanan.');
+                window.location.href = 'login.html';
                 return;
             }
-            
-            container.innerHTML = orders.map(order => {
-                let subtotal = 0;
-                let items = '';
-                order.items.forEach(item => {
-                    const product = products[item.id];
-                    const itemTotal = product.price * item.quantity;
-                    subtotal += itemTotal;
-                    items += `<li>${product.name} x ${item.quantity} = Rp ${itemTotal.toLocaleString()}</li>`;
+
+            try {
+                // PERBAIKAN: Mengarah langsung ke ${API_URL}/history -> http://localhost:5000/api/transaksi/history
+                const response = await fetch(`${API_URL}/history`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
                 });
-                const shipping = 20000;
-                const total = subtotal + shipping;
-                
-                return `
-                    <div class="order-card">
-                        <div class="order-header">
+
+                if (!response.ok) throw new Error('Gagal mengambil data riwayat pesanan');
+
+                const orders = await response.json();
+
+                if (!orders || orders.length === 0) {
+                    container.innerHTML = `
+                    <div class="empty-orders" style="text-align: center; padding: 40px;">
+                        <i class="fas fa-box-open" style="font-size: 3em; color: #ccc;"></i>
+                        <p style="margin-top: 15px;">Belum ada pesanan</p>
+                        <a href="products.html" class="btn-primary" style="display:inline-block; margin-top:10px; padding: 8px 16px; background:#4F46E5; color:white; border-radius:5px; text-decoration:none;">Mulai Belanja</a>
+                    </div>`;
+                    return;
+                }
+
+                // Render card list pesanan dari database
+                container.innerHTML = orders.map(order => {
+                    let itemsHTML = '';
+
+                    // Memastikan data item belanjaan dari database terbaca
+                    if (order.items && order.items.length > 0) {
+                        order.items.forEach(item => {
+                            itemsHTML += `<li>${item.nama_produk} x ${item.jumlah} = Rp ${Number(item.subtotal).toLocaleString('id-ID')}</li>`;
+                        });
+                    } else {
+                        itemsHTML = `<li>Detail produk tidak tersedia</li>`;
+                    }
+
+                    const currentStatus = order.status_order || 'processing';
+
+                    return `
+                    <div class="order-card" style="border: 1px solid #eee; border-radius: 8px; padding: 20px; margin-bottom: 20px; background: #fff;">
+                        <div class="order-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px;">
                             <div>
-                                <h3>${order.orderId}</h3>
-                                <p>${new Date(order.date).toLocaleDateString('id-ID')}</p>
+                                <h3 style="margin: 0; color: #333;">ID Order: #${order.id_order}</h3>
+                                <p style="margin: 5px 0 0 0; color: #888; font-size: 0.9em;">${new Date(order.tanggal_order || order.date).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
                             </div>
-                            <div class="order-status ${order.orderStatus}">${getStatusText(order.orderStatus)}</div>
+                            <div class="order-status ${currentStatus}" style="padding: 5px 10px; border-radius: 20px; font-size: 0.85em; font-weight: bold;">
+                                ${getStatusText(currentStatus)}
+                            </div>
                         </div>
-                        <div class="order-body">
+                        <div class="order-body" style="padding: 15px 0;">
                             <div class="order-items">
-                                <ul>${items}</ul>
+                                <ul style="padding-left: 20px; margin: 0; color: #555;">${itemsHTML}</ul>
                             </div>
-                            <div class="order-total">
-                                <strong>Total: Rp ${total.toLocaleString()}</strong>
+                            <div class="order-total" style="margin-top: 15px; font-size: 1.1em;">
+                                <strong>Total Akhir: Rp ${Number(order.total_harga).toLocaleString('id-ID')}</strong>
                             </div>
-                            <div class="order-payment">
-                                <span>Metode Pembayaran: ${order.paymentMethod || 'Belum dipilih'}</span>
+                            <div class="order-payment" style="margin-top: 5px; color: #666; font-size: 0.9em;">
+                                <span>Metode Pembayaran: <strong>${order.metode_pembayaran || order.metode || 'Transfer Bank'}</strong></span>
                             </div>
                         </div>
-                        <div class="order-footer">
-                            <button onclick="trackOrder('${order.orderId}')" class="btn-track">Lacak Pesanan</button>
-                            <button onclick="reorder('${order.orderId}')" class="btn-reorder">Pesan Lagi</button>
+                        <div class="order-footer" style="border-top: 1px solid #eee; padding-top: 15px; display: flex; gap: 10px;">
+                            <button onclick="trackOrder('${order.id_order}')" class="btn-track" style="padding: 8px 15px; background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 5px; cursor: pointer;">Lacak Pesanan</button>
+                            <button onclick="reorder(${order.id_order})" class="btn-reorder" style="padding: 8px 15px; background: #4F46E5; color: white; border: none; border-radius: 5px; cursor: pointer;">Pesan Lagi</button>
                         </div>
                     </div>
                 `;
-            }).join('');
+                }).join('');
+
+            } catch (error) {
+                console.error(error);
+                container.innerHTML = '<p style="text-align:center; color:red; padding: 20px;">Gagal memuat riwayat pesanan dari server.</p>';
+            }
         }
-        
+
         function getStatusText(status) {
             const statusMap = {
                 'pending': 'Menunggu Pembayaran',
@@ -89,41 +123,30 @@
             };
             return statusMap[status] || status;
         }
-        
+
         function trackOrder(orderId) {
-            alert(`Tracking pesanan ${orderId}: Pesanan sedang diproses oleh kurir`);
+            alert(`Tracking pesanan #${orderId}: Pesanan Anda sedang diproses dan dikemas di gudang.`);
         }
-        
-        function reorder(orderId) {
-            const orders = JSON.parse(localStorage.getItem('orders')) || [];
-            const order = orders.find(o => o.orderId === orderId);
-            if(order && order.items) {
-                let cart = JSON.parse(localStorage.getItem('cart')) || [];
-                order.items.forEach(item => {
-                    const existing = cart.find(c => c.id === item.id);
-                    if(existing) {
-                        existing.quantity += item.quantity;
-                    } else {
-                        cart.push({...item});
-                    }
-                });
-                localStorage.setItem('cart', JSON.stringify(cart));
-                alert('Produk ditambahkan ke keranjang!');
-                window.location.href = 'cart.html';
-            }
+
+        async function reorder(orderId) {
+            alert(`Fitur menyalin pesanan #${orderId} ke keranjang aktif.`);
+            window.location.href = 'cart.html';
         }
-        
-        // Load components
-        Promise.all([
-            fetch('../../Components/header.html').then(res => res.text()),
-            fetch('../../Components/navbar.html').then(res => res.text()),
-            fetch('../../Components/footer.html').then(res => res.text())
-        ]).then(([header, navbar, footer]) => {
-            document.getElementById('header-container').innerHTML = header;
-            document.getElementById('navbar-container').innerHTML = navbar;
-            document.getElementById('footer-container').innerHTML = footer;
-            loadOrders();
+
+        document.addEventListener('DOMContentLoaded', () => {
+            Promise.all([
+                fetch('../../Components/header.html').then(res => res.text()).catch(() => ''),
+                fetch('../../Components/navbar.html').then(res => res.text()).catch(() => ''),
+                fetch('../../Components/footer.html').then(res => res.text()).catch(() => '')
+            ]).then(([header, navbar, footer]) => {
+                if (header) document.getElementById('header-container').innerHTML = header;
+                if (navbar) document.getElementById('navbar-container').innerHTML = navbar;
+                if (footer) document.getElementById('footer-container').innerHTML = footer;
+
+                loadOrders();
+            });
         });
     </script>
 </body>
+
 </html>

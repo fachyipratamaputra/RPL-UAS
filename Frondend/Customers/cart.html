@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,117 +9,172 @@
     <link rel="stylesheet" href="../../Assets/css/customers/cart.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+
 <body>
     <div id="header-container"></div>
     <div id="navbar-container"></div>
-    
+
     <main class="cart-main">
         <div class="container">
             <h1>Keranjang Belanja</h1>
             <div class="cart-content">
-                <div class="cart-items" id="cartItems"></div>
+                <div class="cart-items" id="cartItems">
+                    <div style="text-align: center; padding: 30px;">
+                        <i class="fas fa-spinner fa-spin" style="font-size: 2em; color: #4F46E5;"></i>
+                        <p>Mengambil data keranjang...</p>
+                    </div>
+                </div>
+
                 <div class="cart-summary" id="cartSummary"></div>
             </div>
         </div>
     </main>
-    
+
     <div id="footer-container"></div>
-    
+
     <script>
-        const products = {
-            1: {name: 'Kaos Polos Premium', price: 150000},
-            2: {name: 'Kemeja Flanel Pria', price: 250000},
-            3: {name: 'Dress Wanita Elegan', price: 350000},
-            4: {name: 'Jaket Denim', price: 450000}
-        };
-        
-        function loadCart() {
-            let cart = JSON.parse(localStorage.getItem('cart')) || [];
-            const cartItemsContainer = document.getElementById('cartItems');
-            const cartSummaryContainer = document.getElementById('cartSummary');
-            
-            if(cart.length === 0) {
-                cartItemsContainer.innerHTML = '<div class="empty-cart"><i class="fas fa-shopping-cart"></i><p>Keranjang kosong</p><a href="products.html" class="btn-primary">Belanja Sekarang</a></div>';
-                cartSummaryContainer.innerHTML = '';
+        const API_URL = 'http://localhost:5000/api';
+
+        // 1. Ambil data keranjang
+        async function loadCartFromDatabase() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('Silakan login terlebih dahulu.');
+                window.location.href = 'login.html';
                 return;
             }
-            
-            let subtotal = 0;
-            cartItemsContainer.innerHTML = cart.map((item, index) => {
-                const product = products[item.id];
-                const itemTotal = product.price * item.quantity;
-                subtotal += itemTotal;
-                return `
-                    <div class="cart-item">
-                        <div class="item-info">
-                            <h3>${product.name}</h3>
-                            <p>Rp ${product.price.toLocaleString()}</p>
-                        </div>
-                        <div class="item-quantity">
-                            <button onclick="updateQuantity(${index}, ${item.quantity - 1})">-</button>
-                            <span>${item.quantity}</span>
-                            <button onclick="updateQuantity(${index}, ${item.quantity + 1})">+</button>
-                        </div>
-                        <div class="item-total">Rp ${itemTotal.toLocaleString()}</div>
-                        <button onclick="removeItem(${index})" class="remove-item"><i class="fas fa-trash"></i></button>
-                    </div>
-                `;
-            }).join('');
-            
-            const shipping = subtotal > 200000 ? 0 : 20000;
-            const total = subtotal + shipping;
-            
-            cartSummaryContainer.innerHTML = `
-                <div class="summary-card">
-                    <h3>Ringkasan Belanja</h3>
-                    <div class="summary-row">
-                        <span>Subtotal</span>
-                        <span>Rp ${subtotal.toLocaleString()}</span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Ongkos Kirim</span>
-                        <span>${shipping === 0 ? 'GRATIS' : `Rp ${shipping.toLocaleString()}`}</span>
-                    </div>
-                    <div class="summary-row total">
-                        <span>Total</span>
-                        <span>Rp ${total.toLocaleString()}</span>
-                    </div>
-                    <button class="btn-checkout" onclick="checkout()">Checkout</button>
-                    <a href="products.html" class="btn-continue">Lanjutkan Belanja</a>
+
+            try {
+                const response = await fetch(`${API_URL}/cart`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) throw new Error('Gagal mengambil data');
+                const items = await response.json();
+
+                // KRUSIAL: Simpan data database ke localStorage agar bisa dibaca di checkout.html
+                localStorage.setItem('cart', JSON.stringify(items));
+
+                renderCartItems(items);
+            } catch (error) {
+                console.error(error);
+                document.getElementById('cartItems').innerHTML = '<p>Gagal memuat keranjang.</p>';
+            }
+        }
+
+        function renderCartItems(items) {
+            const cartContainer = document.getElementById('cartItems');
+            const summaryContainer = document.getElementById('cartSummary');
+
+            if (!items || items.length === 0) {
+                cartContainer.innerHTML = '<p style="text-align:center; padding: 20px;">Keranjang Anda masih kosong.</p>';
+                summaryContainer.innerHTML = '';
+                localStorage.removeItem('cart');
+                return;
+            }
+
+            let htmlContent = '';
+            let total = 0;
+
+            items.forEach(item => {
+                const harga = Number(item.harga) || 0;
+                const diskon = Number(item.diskon) || 0;
+                const qty = Number(item.kuantitas) || 1;
+
+                const hargaFinal = diskon > 0 ? harga * (1 - diskon / 100) : harga;
+                const subtotal = hargaFinal * qty;
+                total += subtotal;
+
+                htmlContent += `
+        <div class="cart-item" style="border-bottom: 1px solid #eee; padding: 15px 0; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <img src="${item.gambar || '../../Assets/images/default.jpg'}" alt="${item.nama_produk}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;">
+                <div>
+                    <h3 style="margin: 0;">${item.nama_produk}</h3>
+                    <p style="margin: 5px 0; color: #666;">Rp ${hargaFinal.toLocaleString('id-ID')}</p>
                 </div>
-            `;
+            </div>
+            
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <button onclick="updateQty(${item.id_cart}, ${qty}, -1)" style="padding: 5px 10px;">-</button>
+                <span>${qty}</span>
+                <button onclick="updateQty(${item.id_cart}, ${qty}, 1)" style="padding: 5px 10px;">+</button>
+                
+                <button onclick="deleteCartItem(${item.id_cart})" style="color: red; border: none; cursor: pointer; background: none; margin-left: 15px;">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>`;
+            });
+
+            cartContainer.innerHTML = htmlContent;
+            summaryContainer.innerHTML = `
+        <div style="background: #f9f9f9; padding: 15px; border-radius: 8px;">
+            <h2>Ringkasan</h2>
+            <p>Total: Rp ${total.toLocaleString('id-ID')}</p>
+            <button onclick="window.location.href='checkout.html'" class="btn-checkout" style="width: 100%; padding: 10px; background: #4F46E5; color: white; border: none; border-radius: 5px; cursor: pointer;">Lanjut Pembayaran</button>
+        </div>
+    `;
+
+            // Simpan nilai total belanja sebagai subtotal untuk halaman checkout
+            localStorage.setItem('subtotal', total);
         }
-        
-        function updateQuantity(index, newQuantity) {
-            if(newQuantity < 1) return;
-            let cart = JSON.parse(localStorage.getItem('cart')) || [];
-            cart[index].quantity = newQuantity;
-            localStorage.setItem('cart', JSON.stringify(cart));
-            loadCart();
+
+        // Fungsi untuk menambah atau mengurangi kuantitas
+        async function updateQty(id_cart, currentQty, change) {
+            const newQty = currentQty + change;
+            if (newQty < 1) return;
+
+            const token = localStorage.getItem('token');
+            try {
+                const response = await fetch(`${API_URL}/cart/update`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ id_cart, kuantitas: newQty })
+                });
+
+                if (response.ok) {
+                    loadCartFromDatabase(); // Refresh data otomatis
+                } else {
+                    alert('Gagal memperbarui jumlah produk');
+                }
+            } catch (error) {
+                console.error(error);
+            }
         }
-        
-        function removeItem(index) {
-            let cart = JSON.parse(localStorage.getItem('cart')) || [];
-            cart.splice(index, 1);
-            localStorage.setItem('cart', JSON.stringify(cart));
-            loadCart();
+
+        // Fungsi Hapus
+        async function deleteCartItem(id_cart) {
+            if (!confirm('Hapus produk ini?')) return;
+            const token = localStorage.getItem('token');
+
+            try {
+                const response = await fetch(`${API_URL}/cart/delete/${id_cart}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    loadCartFromDatabase(); // Refresh data otomatis
+                } else {
+                    alert('Gagal menghapus produk dari database');
+                }
+            } catch (error) {
+                console.error(error);
+            }
         }
-        
-        function checkout() {
-            window.location.href = '../../Components/checkout.html';
-        }
-        
-        // Load components
-        Promise.all([
-            fetch('../../Components/header.html').then(res => res.text()),
-            fetch('../../Components/navbar.html').then(res => res.text()),
-            fetch('../../Components/footer.html').then(res => res.text())
-        ]).then(([header, navbar, footer]) => {
-            document.getElementById('header-container').innerHTML = header;
-            document.getElementById('navbar-container').innerHTML = navbar;
-            document.getElementById('footer-container').innerHTML = footer;
-            loadCart();
+
+        // Load Komponen
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCartFromDatabase();
+            fetch('../../Components/header.html').then(r => r.text()).then(d => document.getElementById('header-container').innerHTML = d);
+            fetch('../../Components/navbar.html').then(r => r.text()).then(d => document.getElementById('navbar-container').innerHTML = d);
+            fetch('../../Components/footer.html').then(r => r.text()).then(d => document.getElementById('footer-container').innerHTML = d);
         });
     </script>
 </body>
+
 </html>

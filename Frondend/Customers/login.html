@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,43 +8,45 @@
     <link rel="stylesheet" href="../../Assets/css/global.css">
     <link rel="stylesheet" href="../../Assets/css/customers/login.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
 </head>
+
 <body>
     <div id="header-container"></div>
-    
+
     <div class="auth-container">
         <div class="auth-box">
             <div class="auth-header">
                 <h2>Login</h2>
                 <p>Silakan login untuk melanjutkan belanja</p>
             </div>
-            
+
             <form id="loginForm">
                 <div class="form-group">
                     <label for="email">Email</label>
                     <input type="email" id="email" name="email" required placeholder="Masukkan email Anda">
                 </div>
-                
+
                 <div class="form-group">
                     <label for="password">Password</label>
                     <input type="password" id="password" name="password" required placeholder="Masukkan password">
                 </div>
-                
+
                 <div class="form-options">
                     <label class="checkbox">
                         <input type="checkbox" id="remember"> Ingat Saya
                     </label>
                     <a href="#" class="forgot-password">Lupa Password?</a>
                 </div>
-                
+
                 <button type="submit" class="btn-login">Login</button>
             </form>
-            
+
             <div class="auth-footer">
                 <p>Belum punya akun? <a href="../../Frondend/Customers/register.html">Daftar Sekarang</a></p>
             </div>
-            
+
             <div class="social-login">
                 <p>Atau login dengan</p>
                 <div class="social-icons">
@@ -54,31 +57,71 @@
             </div>
         </div>
     </div>
-    
+
     <div id="footer-container"></div>
-    
+
     <script>
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        // Definisikan alamat API Backend Express kamu
+        const API_URL = 'http://localhost:5000/api';
+
+        document.getElementById('loginForm').addEventListener('submit', async function (e) {
             e.preventDefault();
+
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const remember = document.getElementById('remember').checked;
-            
-            // Simulasi login
-            if(email && password) {
+
+            try {
+                // 1. Kirim data email & password ke backend
+                const response = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                // 2. Cek apakah backend mengembalikan error
+                if (!response.ok || data.error) {
+                    alert(data.error || 'Email atau password salah!');
+                    return;
+                }
+
+                // 3. JIKA SUKSES: Simpan token JWT dan status login ke localStorage
+                localStorage.setItem('token', data.token);
                 localStorage.setItem('isLoggedIn', 'true');
                 localStorage.setItem('userEmail', email);
-                if(remember) {
+
+                // Simpan data nama dan role asli dari database
+                localStorage.setItem('userFullname', data.user.nama);
+                localStorage.setItem('role', data.user.role);
+
+                if (remember) {
                     localStorage.setItem('rememberMe', 'true');
                 }
+
                 alert('Login berhasil!');
-                window.location.href = '../../Frontend/Customers/home.html';
-            } else {
-                alert('Harap isi semua field!');
+
+                // PERBAIKAN: Ubah ke huruf kecil untuk menghindari kesalahan deteksi string
+                const userRole = data.user.role.toLowerCase();
+
+                if (userRole === 'admin') {
+                    // Jika yang login Admin, lempar ke dashboard admin
+                    window.location.href = '../../Frontend/Admin/dashboard.html';
+                } else {
+                    // Jika Customer, lempar ke beranda belanja customer
+                    window.location.href = '../../Frondend/Customers/home.html';
+                }
+
+            } catch (error) {
+                console.error('Error saat melakukan login:', error);
+                alert('Gagal terhubung ke server backend. Pastikan server Node.js Anda menyala!');
             }
         });
-        
-        // Load components
+
+        // Load components (Navbar & Footer)
         fetch('../../Components/header.html')
             .then(res => res.text())
             .then(data => document.getElementById('header-container').innerHTML = data);
@@ -87,4 +130,5 @@
             .then(data => document.getElementById('footer-container').innerHTML = data);
     </script>
 </body>
+
 </html>

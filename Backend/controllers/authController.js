@@ -1,66 +1,81 @@
-// controllers/authController.js
 const db = require('../config/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-// Logika untuk SIGNUP (Sudah Direvisi untuk Keamanan Role)
+// 1. Logika untuk SIGNUP (Menggunakan async/await & Promise)
 exports.signup = async (req, res) => {
     try {
         const { nama, email, password } = req.body;
 
         // REVISI KEAMANAN: Gembok role agar pendaftar publik otomatis menjadi 'Customer'
-        // Jangan biarkan req.body.role menentukan role secara bebas demi keamanan sistem
         const userRole = 'Customer';
 
-        db.query('SELECT * FROM users WHERE email = ?', [email], async (err, results) => {
-            if (err) return res.status(500).json({ error: err.message });
-            if (results.length > 0) {
-                return res.status(400).json({ message: "Email sudah terdaftar! Silahkan Login" });
-            }
+        // Cek apakah email sudah terdaftar
+        const [existingUser] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+        if (existingUser.length > 0) {
+            return res.status(400).json({ message: "Email sudah terdaftar! Silakan Login." });
+        }
 
-            const hashedPassword = await bcrypt.hash(password, 10);
-            const queryInsert = 'INSERT INTO users (nama, email, password, role) VALUES (?, ?, ?, ?)';
+        // Hash password
+        const hashedPassword = await bcrypt.hash(password, 10);
+        
+        // Insert user baru
+        const queryInsert = 'INSERT INTO users (nama, email, password, role) VALUES (?, ?, ?, ?)';
+        const [result] = await db.query(queryInsert, [nama, email, hashedPassword, userRole]);
 
-            db.query(queryInsert, [nama, email, hashedPassword, userRole], (err, result) => {
-                if (err) return res.status(500).json({ error: err.message });
-                res.status(201).json({
-                    message: "Registrasi akun berhasil!",
-                    user: { id_user: result.insertId, nama, email, role: userRole }
-                });
-            });
+        res.status(201).json({
+            message: "Registrasi akun berhasil!",
+            user: { id_user: result.insertId, nama, email, role: userRole }
         });
     } catch (error) {
-        res.status(500).json({ message: "Internal server error" });
+        console.error("Error Signup:", error);
+        res.status(500).json({ error: error.message || "Internal server error" });
     }
 };
 
-// Logika untuk LOGIN (Tetap seperti kode awal Anda)
-exports.login = (req, res) => {
+// 2. Logika untuk LOGIN (Disinkronkan dengan Controller Keranjang)
+exports.login = async (req, res) => {
     const { email, password } = req.body;
 
-    db.query('SELECT * FROM users WHERE email = ?', [email], async (err, results) => {
-        if (err) return res.status(500).json({ error: err.message });
-        if (results.length === 0) return res.status(404).json({ message: "Akun tidak ditemukan!" });
+    try {
+        // Cari user berdasarkan email
+        const [results] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+        if (results.length === 0) {
+            return res.status(404).json({ message: "Akun tidak ditemukan!" });
+        }
 
         const user = results[0];
+        
+        // Validasi password
         const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(400).json({ message: "Password salah!" });
+        if (!isMatch) {
+            return res.status(400).json({ message: "Password salah!" });
+        }
 
+        // REVISI PENTING: Gunakan 'id' di dalam payload JWT agar sinkron dengan req.user.id di cartController
         const token = jwt.sign(
-            { id_user: user.id_user, email: user.email, role: user.role },
+            { id: user.id_user, email: user.email, role: user.role }, 
             process.env.JWT_SECRET,
-            { expiresIn: '1h' }
+            { expiresIn: '1d'}
         );
 
-        res.json({
+        // Kirim response ke frontend
+        res.status(200).json({
             token,
-            user
+            user: {
+                id_user: user.id_user,
+                nama: user.nama,
+                email: user.email,
+                role: user.role
+            }
         });
-    });
+    } catch (error) {
+        console.error("Error Login:", error);
+        res.status(500).json({ error: error.message || "Internal server error" });
+    }
 };
 
-// Logika untuk LOGOUT (Tetap seperti kode awal Anda)
+// 3. Logika untuk LOGOUT
 exports.logout = (req, res) => {
     res.json({ message: "Logout berhasil, sesi dihapus." });
 };
-

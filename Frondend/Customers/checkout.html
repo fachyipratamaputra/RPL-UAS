@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,10 +9,11 @@
     <link rel="stylesheet" href="../../Assets/css/customers/checkout.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+
 <body>
     <div id="header-container"></div>
     <div id="navbar-container"></div>
-    
+
     <main class="checkout-main">
         <div class="container">
             <h1>Checkout</h1>
@@ -55,12 +57,12 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="form-section">
                             <h3>Metode Pengiriman</h3>
                             <div class="shipping-options">
                                 <label class="shipping-option">
-                                    <input type="radio" name="shipping" value="jne" checked>
+                                    <input type="radio" name="shipping" value="jne" data-price="20000" checked>
                                     <div>
                                         <strong>JNE Reguler</strong>
                                         <span>Estimasi 3-5 hari</span>
@@ -68,7 +70,7 @@
                                     </div>
                                 </label>
                                 <label class="shipping-option">
-                                    <input type="radio" name="shipping" value="tiki">
+                                    <input type="radio" name="shipping" value="tiki" data-price="25000">
                                     <div>
                                         <strong>TIKI Express</strong>
                                         <span>Estimasi 2-4 hari</span>
@@ -76,7 +78,7 @@
                                     </div>
                                 </label>
                                 <label class="shipping-option">
-                                    <input type="radio" name="shipping" value="pos">
+                                    <input type="radio" name="shipping" value="pos" data-price="15000">
                                     <div>
                                         <strong>POS Indonesia</strong>
                                         <span>Estimasi 4-7 hari</span>
@@ -87,71 +89,110 @@
                         </div>
                     </form>
                 </div>
-                
+
                 <div class="order-summary" id="orderSummary"></div>
             </div>
         </div>
     </main>
-    
+
     <div id="footer-container"></div>
-    
+
     <script>
-        const products = {
-            1: {name: 'Kaos Polos Premium', price: 150000},
-            2: {name: 'Kemeja Flanel Pria', price: 250000},
-            3: {name: 'Dress Wanita Elegan', price: 350000},
-            4: {name: 'Jaket Denim', price: 450000}
-        };
-        
+
         function loadOrderSummary() {
             const cart = JSON.parse(localStorage.getItem('cart')) || [];
             let subtotal = 0;
-            let items = '';
-            
+            let itemsHTML = '';
+
             cart.forEach(item => {
-                const product = products[item.id];
-                const itemTotal = product.price * item.quantity;
+                // Sesuaikan dengan key database (harga, diskon, kuantitas)
+                const harga = Number(item.harga) || 0;
+                const diskon = Number(item.diskon) || 0;
+                const qty = Number(item.kuantitas || item.quantity) || 1;
+
+                const hargaFinal = diskon > 0 ? harga * (1 - diskon / 100) : harga;
+                const itemTotal = hargaFinal * qty;
                 subtotal += itemTotal;
-                items += `<div class="order-item">
-                    <span>${product.name} x ${item.quantity}</span>
-                    <span>Rp ${itemTotal.toLocaleString()}</span>
-                </div>`;
+
+                itemsHTML += `
+        <div class="order-item">
+            <span>${item.nama_produk} x ${qty}</span>
+            <span>Rp ${itemTotal.toLocaleString('id-ID')}</span>
+        </div>`;
             });
-            
-            const shipping = 20000;
-            const total = subtotal + shipping;
-            
+
+            // Jika subtotal localstorage kosong, gunakan hitungan loop
+            if (subtotal === 0) {
+                subtotal = Number(localStorage.getItem('subtotal')) || 0;
+            }
+
+            const selectedShipping = document.querySelector('input[name="shipping"]:checked');
+            const ongkir = Number(selectedShipping?.dataset.price) || 20000;
+            const total = subtotal + ongkir;
+
             document.getElementById('orderSummary').innerHTML = `
-                <div class="summary-card">
-                    <h3>Pesanan Anda</h3>
-                    <div class="order-items">${items}</div>
-                    <div class="summary-row">
-                        <span>Subtotal</span>
-                        <span>Rp ${subtotal.toLocaleString()}</span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Ongkos Kirim</span>
-                        <span>Rp ${shipping.toLocaleString()}</span>
-                    </div>
-                    <div class="summary-row total">
-                        <span>Total</span>
-                        <span>Rp ${total.toLocaleString()}</span>
-                    </div>
-                    <button class="btn-place-order" onclick="placeOrder()">Buat Pesanan</button>
-                </div>
-            `;
+    <div class="summary-card">
+        <h3>Pesanan Anda</h3>
+        <div class="order-items">
+            ${itemsHTML}
+        </div>
+        <div class="summary-row">
+            <span>Subtotal</span>
+            <span id="subtotal-text">Rp ${subtotal.toLocaleString('id-ID')}</span>
+        </div>
+        <div class="summary-row">
+            <span>Ongkos Kirim</span>
+            <span id="ongkir-text">Rp ${ongkir.toLocaleString('id-ID')}</span>
+        </div>
+        <div class="summary-row total">
+            <span>Total</span>
+            <span id="total-text">Rp ${total.toLocaleString('id-ID')}</span>
+        </div>
+        <button class="btn-place-order" type="button" onclick="placeOrder()">Buat Pesanan</button>
+    </div>`;
+
+            localStorage.setItem('subtotal', subtotal);
+            localStorage.setItem('checkoutData', JSON.stringify({
+                subtotal,
+                ongkir,
+                total,
+                courier: selectedShipping.value
+            }));
         }
-        
+
+        function updateCheckoutTotal() {
+            const subtotal = Number(localStorage.getItem('subtotal')) || 0;
+            const selectedShipping = document.querySelector('input[name="shipping"]:checked');
+            const ongkir = Number(selectedShipping?.dataset.price) || 0;
+            const total = subtotal + ongkir;
+
+            document.getElementById('subtotal-text').innerText = `Rp ${subtotal.toLocaleString('id-ID')}`;
+            document.getElementById('ongkir-text').innerText = `Rp ${ongkir.toLocaleString('id-ID')}`;
+            document.getElementById('total-text').innerText = `Rp ${total.toLocaleString('id-ID')}`;
+
+            localStorage.setItem('checkoutData', JSON.stringify({
+                subtotal,
+                ongkir,
+                total,
+                courier: selectedShipping.value
+            }));
+        }
+
         function placeOrder() {
             const receiverName = document.getElementById('receiverName').value;
             const address = document.getElementById('address').value;
+            const province = document.getElementById('province').value;
+            const city = document.getElementById('city').value;
+            const postalCode = document.getElementById('postalCode').value;
             const phone = document.getElementById('phone').value;
-            
-            if(!receiverName || !address || !phone) {
-                alert('Harap lengkapi informasi pengiriman!');
+
+            if (!receiverName || !address || !province || !city || !postalCode || !phone) {
+                alert('Harap lengkapi data pengiriman!');
                 return;
             }
-            
+
+            const checkoutData = JSON.parse(localStorage.getItem('checkoutData'));
+
             const orderData = {
                 orderId: 'ORD-' + Date.now(),
                 date: new Date().toISOString(),
@@ -159,41 +200,47 @@
                 shipping: {
                     receiverName,
                     address,
-                    phone
+                    province,
+                    city,
+                    postalCode,
+                    phone,
+                    courier: checkoutData.courier
                 },
-                total: calculateTotal()
+                subtotal: checkoutData.subtotal,
+                ongkir: checkoutData.ongkir,
+                total: checkoutData.total
             };
-            
-            let orders = JSON.parse(localStorage.getItem('orders')) || [];
-            orders.push(orderData);
-            localStorage.setItem('orders', JSON.stringify(orders));
+
             localStorage.setItem('currentOrder', JSON.stringify(orderData));
-            
-            localStorage.removeItem('cart');
+
+            // Sediakan data untuk payment.html agar terbaca ringkasannya nanti
+            localStorage.setItem('finalTotal', checkoutData.total);
+
             window.location.href = 'payment.html';
         }
-        
-        function calculateTotal() {
-            const cart = JSON.parse(localStorage.getItem('cart')) || [];
-            let subtotal = 0;
-            cart.forEach(item => {
-                const product = products[item.id];
-                subtotal += product.price * item.quantity;
+
+        document.addEventListener('DOMContentLoaded', () => {
+
+            Promise.all([
+                fetch('../../Components/header.html').then(res => res.text()),
+                fetch('../../Components/navbar.html').then(res => res.text()),
+                fetch('../../Components/footer.html').then(res => res.text())
+            ]).then(([header, navbar, footer]) => {
+
+                document.getElementById('header-container').innerHTML = header;
+                document.getElementById('navbar-container').innerHTML = navbar;
+                document.getElementById('footer-container').innerHTML = footer;
+
+                loadOrderSummary();
+
+                document.querySelectorAll('input[name="shipping"]').forEach(radio => {
+                    radio.addEventListener('change', updateCheckoutTotal);
+                });
             });
-            return subtotal + 20000;
-        }
-        
-        // Load components
-        Promise.all([
-            fetch('../../Components/header.html').then(res => res.text()),
-            fetch('../../Components/navbar.html').then(res => res.text()),
-            fetch('../../Components/footer.html').then(res => res.text())
-        ]).then(([header, navbar, footer]) => {
-            document.getElementById('header-container').innerHTML = header;
-            document.getElementById('navbar-container').innerHTML = navbar;
-            document.getElementById('footer-container').innerHTML = footer;
-            loadOrderSummary();
+
         });
+
     </script>
 </body>
+
 </html>

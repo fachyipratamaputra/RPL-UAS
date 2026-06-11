@@ -1,118 +1,259 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home - Toko Baju Online</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="description"
+        content="Toko Baju Online - Pusat fashion terbaru dengan kualitas terbaik dan harga terjangkau">
+    <meta name="keywords" content="toko baju online, fashion, pakaian, baju trendy">
+    <meta name="author" content="Toko Baju Online">
+    <title>Toko Baju Online - Pusat Fashion Modern</title>
+
     <link rel="stylesheet" href="../../Assets/css/global.css">
+
     <link rel="stylesheet" href="../../Assets/css/customers/home.css">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
 </head>
+
 <body>
     <div id="header-container"></div>
+
     <div id="navbar-container"></div>
-    
+
     <main class="main-content">
-        <!-- Hero Section -->
         <section class="hero-section">
             <div class="hero-container">
                 <div class="hero-content">
-                    <h1>Selamat Datang di <span class="highlight">Toko Baju Online</span></h1>
-                    <p>Temukan fashion terbaik untuk penampilanmu</p>
-                    <a href="../../Frondend/Customers/products.html" class="btn-primary">Mulai Belanja</a>
+                    <span class="hero-badge">DISKON UP TO 50%</span>
+                    <h1 class="hero-title">Temukan <span class="highlight">Gaya Terbaikmu</span> di Sini</h1>
+                    <p class="hero-description">
+                        Koleksi pakaian terbaru dengan kualitas premium, nyaman dipakai,
+                        dan harga yang bersahabat. Tampil beda dengan gaya modernmu.
+                    </p>
+                    <div class="hero-buttons">
+                        <a href="../../Frondend/Customers/products.html" class="btn-primary">
+                            Belanja Sekarang <i class="fas fa-arrow-right"></i>
+                        </a>
+                        <a href="#koleksi" class="btn-secondary">
+                            Lihat Promo <i class="fas fa-chevron-down"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="hero-image">
+                    <img src="https://via.placeholder.com/600x500/4F46E5/FFFFFF?text=Fashion+Style" alt="Fashion Hero">
                 </div>
             </div>
         </section>
-        
-        <!-- Categories -->
-        <section class="categories">
+
+        <section class="categories-section">
             <div class="container">
-                <h2>Kategori Populer</h2>
-                <div class="category-grid">
-                    <div class="category-card" onclick="location.href='products.html?cat=wanita'">
-                        <i class="fas fa-female"></i>
-                        <h3>Wanita</h3>
+                <div class="section-header">
+                    <h2 class="section-title">Kategori <span class="highlight">Pilihan</span></h2>
+                    <p class="section-subtitle">Pilih sesuai gaya dan kebutuhanmu</p>
+                </div>
+                <div class="categories-grid" style="display: flex; justify-content: center; gap: 30px;">
+                    <div class="category-card" style="flex: 1; max-width: 300px;">
+                        <div class="category-icon">
+                            <i class="fas fa-tshirt"></i>
+                        </div>
+                        <h3>Atasan</h3>
+                        <p>Koleksi Baju & Jaket</p>
+                        <a href="../../Frondend/Customers/products.html?category=Atasan" class="category-link">Lihat
+                            Semua</a>
                     </div>
-                    <div class="category-card" onclick="location.href='products.html?cat=pria'">
-                        <i class="fas fa-male"></i>
-                        <h3>Pria</h3>
-                    </div>
-                    <div class="category-card" onclick="location.href='products.html?cat=anak'">
-                        <i class="fas fa-child"></i>
-                        <h3>Anak</h3>
-                    </div>
-                    <div class="category-card" onclick="location.href='products.html?cat=aksesoris'">
-                        <i class="fas fa-gem"></i>
-                        <h3>Aksesoris</h3>
+                    <div class="category-card" style="flex: 1; max-width: 300px;">
+                        <div class="category-icon">
+                            <i class="fas fa-socks"></i>
+                        </div>
+                        <h3>Bawahan</h3>
+                        <p>Koleksi Rok & Celana</p>
+                        <a href="../../Frondend/Customers/products.html?category=Bawahan" class="category-link">Lihat
+                            Semua</a>
                     </div>
                 </div>
             </div>
         </section>
-        
-        <!-- Featured Products -->
-        <section class="featured-products">
+
+        <section class="products-section" id="koleksi">
             <div class="container">
-                <h2>Produk Terbaru</h2>
-                <div class="products-grid" id="featuredProducts"></div>
+                <div class="section-header">
+                    <h2 class="section-title">Promo <span class="highlight">Diskon Spesial</span></h2>
+                    <p class="section-subtitle">Jangan lewatkan penawaran harga terbaik bulan ini</p>
+                </div>
+                <div class="products-grid" id="discount-products-container">
+                    <div style="text-align: center; grid-column: 1/-1;">Memuat produk promo...</div>
+                </div>
+                <div class="products-more">
+                    <a href="../../Frondend/Customers/products.html" class="btn-primary btn-outline">
+                        Lihat Semua Produk <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="promo-section">
+            <div class="promo-container">
+                <div class="promo-content">
+                    <span class="promo-badge">PROMO TERBATAS</span>
+                    <h2>Dapatkan Diskon <span class="highlight">20%</span> untuk Pembelian Pertama</h2>
+                    <p>Gunakan kode promo: <strong>BAJU20</strong> saat checkout</p>
+                    <div class="promo-timer">
+                        <div class="timer-item"><span id="days" class="timer-number">00</span><span
+                                class="timer-label">Hari</span></div>
+                        <div class="timer-item"><span id="hours" class="timer-number">00</span><span
+                                class="timer-label">Jam</span></div>
+                        <div class="timer-item"><span id="minutes" class="timer-number">00</span><span
+                                class="timer-label">Menit</span></div>
+                        <div class="timer-item"><span id="seconds" class="timer-number">00</span><span
+                                class="timer-label">Detik</span></div>
+                    </div>
+                    <a href="../../Frondend/Customers/products.html" class="btn-primary btn-large">Belanja Sekarang</a>
+                </div>
             </div>
         </section>
     </main>
-    
+
     <div id="footer-container"></div>
     <div id="chatbot-container"></div>
-    
+
+    <script src="../../Assets/js/Customers/cart.js"></script>
+    <script src="../../Assets/js/Customers/chatbot.js"></script>
+
     <script>
-        // Check login status
-        if(!localStorage.getItem('isLoggedIn')) {
-            window.location.href = 'login.html';
+        // URL API Backend Anda (Sesuaikan dengan setup server.js Anda)
+        const API_URL = 'http://localhost:5000/api';
+
+        async function loadComponent(elementId, componentPath) {
+            try {
+                const response = await fetch(componentPath);
+                const html = await response.text();
+                document.getElementById(elementId).innerHTML = html;
+            } catch (error) {
+                console.error(`Error loading ${componentPath}:`, error);
+            }
         }
-        
-        // Load components
-        Promise.all([
-            fetch('../../Components/header.html').then(res => res.text()),
-            fetch('../../Components/navbar.html').then(res => res.text()),
-            fetch('../../Components/footer.html').then(res => res.text()),
-            fetch('../../Components/chatbot-widget.html').then(res => res.text())
-        ]).then(([header, navbar, footer, chatbot]) => {
-            document.getElementById('header-container').innerHTML = header;
-            document.getElementById('navbar-container').innerHTML = navbar;
-            document.getElementById('footer-container').innerHTML = footer;
-            document.getElementById('chatbot-container').innerHTML = chatbot;
-        });
-        
-        // Load featured products
-        const products = [
-            {id: 1, name: 'Kaos Polos Premium', price: 150000, image: 'https://via.placeholder.com/300'}, 
-            {id: 2, name: 'Kemeja Flanel', price: 250000, image: 'https://via.placeholder.com/300'},
-            {id: 3, name: 'Dress Wanita', price: 350000, image: 'https://via.placeholder.com/300'},
-            {id: 4, name: 'Jaket Denim', price: 450000, image: 'https://via.placeholder.com/300'}
-        ];
-        
-        const productsGrid = document.getElementById('featuredProducts');
-        products.forEach(product => {
-            productsGrid.innerHTML += `
+
+        // Fungsi Load Produk Diskon dari Database (Backend)
+        async function fetchDiscountProducts() {
+            try {
+                // PERBAIKAN: Sesuaikan endpoint rute backend. 
+                // Jika di server.js menggunakan '/api/products', ubah '/produk/diskon' menjadi '/products/diskon'
+                const response = await fetch(`${API_URL}/produk/diskon`);
+                const products = await response.json();
+
+                const container = document.getElementById('discount-products-container');
+                container.innerHTML = '';
+
+                if (!products || products.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; grid-column: 1/-1;">Tidak ada produk diskon saat ini.</div>';
+                    return;
+                }
+
+                products.forEach(product => {
+                    const originalPrice = product.harga;
+                    const discountPercent = product.diskon || 0;
+                    const currentPrice = discountPercent > 0 ? originalPrice - (originalPrice * discountPercent / 100) : originalPrice;
+
+                    const productCard = `
                 <div class="product-card">
-                    <img src="${product.image}" alt="${product.name}">
-                    <h3>${product.name}</h3>
-                    <p>Rp ${product.price.toLocaleString()}</p>
-                    <button onclick="addToCart(${product.id})">Tambah ke Keranjang</button>
-                    <a href="product-detail.html?id=${product.id}">Lihat Detail</a>
+                    ${discountPercent > 0 ? `<div class="product-badge sale">-${discountPercent}%</div>` : ''}
+                    <div class="product-image">
+                        <img src="${product.gambar || 'https://via.placeholder.com/300x300'}" alt="${product.nama_produk}">
+                        <div class="product-overlay">
+                            <a href="../../Frondend/Customers/product-detail.html?id=${product.id_product}" class="btn-quick-view">Quick View</a>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">${product.nama_produk}</h3>
+                        <div class="product-price">
+                            <span class="current-price">Rp ${currentPrice.toLocaleString('id-ID')}</span>
+                            ${discountPercent > 0 ? `<span class="old-price">Rp ${originalPrice.toLocaleString('id-ID')}</span>` : ''}
+                        </div>
+                        <div class="product-rating">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                            <span>(5.0)</span>
+                        </div>
+                        <button class="btn-add-cart" data-product-id="${product.id_product}">
+                            <i class="fas fa-shopping-cart"></i> Tambah ke Keranjang
+                        </button>
+                    </div>
                 </div>
             `;
-        });
-        
-        function addToCart(productId) {
-            let cart = JSON.parse(localStorage.getItem('cart')) || [];
-            const existing = cart.find(item => item.id === productId);
-            if(existing) {
-                existing.quantity++;
-            } else {
-                cart.push({id: productId, quantity: 1});
+                    container.insertAdjacentHTML('beforeend', productCard);
+                });
+
+                initCartEvents();
+
+            } catch (error) {
+                console.error('Gagal memuat produk dari database:', error);
+                document.getElementById('discount-products-container').innerHTML = '<div style="text-align: center; grid-column: 1/-1;">Gagal memuat produk.</div>';
             }
-            localStorage.setItem('cart', JSON.stringify(cart));
-            alert('Produk ditambahkan ke keranjang!');
         }
+
+        function initCartEvents() {
+            document.querySelectorAll('.btn-add-cart').forEach(button => {
+                button.replaceWith(button.cloneNode(true));
+            });
+
+            document.querySelectorAll('.btn-add-cart').forEach(button => {
+                button.addEventListener('click', function (e) {
+                    const productId = this.getAttribute('data-product-id');
+                    const productCard = this.closest('.product-card');
+                    const productTitle = productCard.querySelector('.product-title').textContent;
+                    const productPrice = productCard.querySelector('.current-price').textContent;
+
+                    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+                    const existingProduct = cart.find(item => item.id === productId);
+
+                    if (existingProduct) {
+                        existingProduct.quantity += 1;
+                    } else {
+                        cart.push({
+                            id: productId,
+                            name: productTitle,
+                            price: productPrice,
+                            quantity: 1
+                        });
+                    }
+
+                    localStorage.setItem('cart', JSON.stringify(cart));
+                    alert(`${productTitle} telah ditambahkan ke keranjang!`);
+                });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            loadComponent('header-container', '../../Components/header.html');
+            loadComponent('navbar-container', '../../Components/navbar.html');
+            loadComponent('footer-container', '../../Components/footer.html');
+            loadComponent('chatbot-container', '../../Components/chatbot-widget.html');
+
+            fetchDiscountProducts();
+
+            // Countdown Timer Promo
+            (function startCountdown() {
+                const targetDate = new Date();
+                targetDate.setDate(targetDate.getDate() + 7);
+                targetDate.setHours(23, 59, 59, 999);
+
+                setInterval(() => {
+                    const diff = targetDate - new Date();
+                    if (diff <= 0) return;
+
+                    // PERBAIKAN: Memastikan String() membungkus Math.floor() dengan benar sebelum .padStart()
+                    document.getElementById('days').textContent = String(Math.floor(diff / (1000 * 60 * 60 * 24))).padStart(2, '0');
+                    document.getElementById('hours').textContent = String(Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
+                    document.getElementById('minutes').textContent = String(Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
+                    document.getElementById('seconds').textContent = String(Math.floor((diff % (1000 * 60)) / 1000)).padStart(2, '0');
+                }, 1000);
+            })();
+        });
     </script>
 </body>
+
 </html>
