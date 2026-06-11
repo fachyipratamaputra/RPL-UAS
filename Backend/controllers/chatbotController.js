@@ -1,5 +1,5 @@
 const db = require('../config/db');
-const axios = require('axios'); 
+const axios = require('axios');
 
 const GEMINI_API_KEY = "AIzaSyDKeOT-0eeY7gkRfaQioVBKmkGxD1F6LFY";
 
@@ -18,16 +18,16 @@ exports.handleChat = (req, res) => {
         }
 
         const produkResults = results || [];
-        
+
         // Format data dari MySQL jadi teks string kasar untuk AI
-        const dataStokToko = produkResults.map(p => 
+        const dataStokToko = produkResults.map(p =>
             `Nama: ${p.nama_produk} | Kategori: ${p.kategori} | Harga: Rp${p.harga} | Stok: ${p.stok} | Diskon: ${p.diskon}%`
         ).join('\n');
 
         try {
             // --- JALUR UTAMA: MENEMBAK GEMINI AI ---
             const urlGemini = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
-            
+
             const promptLengkap = `Kamu adalah Chatbot Kasir Virtual yang ramah untuk Toko Baju Online Kelompok 6.
             Jawab pertanyaan customer dengan santun dan kasual berdasarkan data ini saja:
             ${dataStokToko}
@@ -53,12 +53,12 @@ exports.handleChat = (req, res) => {
                     return `- *${p.nama_produk}* ${p.diskon > 0 ? `(Diskon ${p.diskon}%)` : ''}: jadi Rp ${hargaAkhir.toLocaleString('id-ID')}`;
                 }).join('\n');
 
-                return res.json({ 
+                return res.json({
                     balasan: `Halo kak! Ini beberapa rekomendasi baju yang lagi hemat/diskon di toko kami:\n\n${daftarBaju || "Saat ini belum ada promo aktif nih."}\n\nYuk buruan di-checkout! 🛒`,
                     mode: "Backup Hybrid Active"
                 });
-            } 
-            
+            }
+
             // 2. Skenario Stok / Kategori Cowok-Cewek
             else if (inputUser.includes('stok') || inputUser.includes('baju') || inputUser.includes('cowok') || inputUser.includes('cewek') || inputUser.includes('produk') || inputUser.includes('lihat')) {
                 let filtered = produkResults;
@@ -69,11 +69,11 @@ exports.handleChat = (req, res) => {
                 }
 
                 let daftarStok = filtered.map(p => `- *${p.nama_produk}* | Harga: Rp ${p.harga.toLocaleString('id-ID')} | Stok: ${p.stok} Pcs`).join('\n');
-                return res.json({ 
+                return res.json({
                     balasan: `Berikut katalog baju terupdate di database kami:\n\n${daftarStok || "Koleksi pakaian sedang kosong."}\n\nSilakan cek menu produk untuk pemesanan ya!`,
                     mode: "Backup Hybrid Active"
                 });
-            } 
+            }
 
             // 3. BARU ✨: Skenario Cek Pesanan / Order
             else if (inputUser.includes('pesanan') || inputUser.includes('order') || inputUser.includes('status')) {
@@ -91,16 +91,44 @@ exports.handleChat = (req, res) => {
                 });
             }
 
-            // 5. BARU ✨: Skenario Panduan Ukuran / Size Chart
+            // --- KODE BARU (EDIT MENJADI SEPERTI INI) ---
             else if (inputUser.includes('ukuran') || inputUser.includes('size') || inputUser.includes('panduan')) {
-                return res.json({
-                    balasan: `Berikut adalah standar panduan ukuran (*Size Chart*) baju di toko kami:\n\n- **S (Small):** Lingkar Dada (LD) ~86cm\n- **M (Medium):** Lingkar Dada (LD) ~92cm\n- **L (Large):** Lingkar Dada (LD) ~98cm\n- **XL (Extra Large):** Lingkar Dada (LD) ~104cm\n\n*Tips: Untuk detail kecocokan bahan, kakak bisa melihat langsung di deskripsi tiap produk.* ✨`,
-                    mode: "Backup Hybrid Active"
-                });
+                // 1. Pastikan query SQL kamu di atas sudah menarik kolom 'deskripsi'
+                // Jika belum, pastikan query di bagian atas file diubah menjadi: 
+                // db.query('SELECT nama_produk, harga, stok, diskon, kategori, deskripsi FROM produk', ...)
+
+                // 2. Cari apakah ada produk yang deskripsinya mengandung info ukuran/size
+                const produkDenganUkuran = produkResults.filter(p =>
+                    p.deskripsi && (
+                        p.deskripsi.toLowerCase().includes('ukuran') ||
+                        p.deskripsi.toLowerCase().includes('size') ||
+                        p.deskripsi.toLowerCase().includes('ld')
+                    )
+                );
+
+                if (produkDenganUkuran.length > 0) {
+                    // Gabungkan deskripsi dari produk-produk yang relevan untuk ditampilkan oleh bot
+                    let balasanDeskripsi = `Berikut adalah detail panduan ukuran produk yang kami ambil dari deskripsi toko:\n\n`;
+
+                    produkDenganUkuran.forEach(p => {
+                        balasanDeskripsi += `👕 **${p.nama_produk}**:\n${p.deskripsi}\n\n`;
+                    });
+
+                    return res.json({
+                        balasan: balasanDeskripsi.trim(),
+                        mode: "Database Live Sync"
+                    });
+                } else {
+                    // Fallback jika ternyata isi kolom deskripsi di database masih kosong semua
+                    return res.json({
+                        balasan: "Saat ini detail ukuran belum tercantum di deskripsi produk database kami. Silakan hubungi admin ya kak! ✨",
+                        mode: "Database Fallback Empty"
+                    });
+                }
             }
 
             // 6. Jalur Default (Menu Utama)
-            return res.json({ 
+            return res.json({
                 balasan: "Halo! Selamat datang di Kasir Otomatis Kelompok 6. 👋\n\nAda yang bisa dibantu? Silakan ketik kata kunci seperti *'diskon'*, *'stok baju'*, *'cek pesanan'*, atau *'info pengiriman'* ya!",
                 mode: "Backup Hybrid Active"
             });

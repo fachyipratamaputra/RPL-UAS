@@ -2,7 +2,8 @@ const db = require('../config/db');
 
 // R-06, R-07, R-09, R-11: Proses Checkout dari Keranjang ke Tabel Orders & Pembayaran
 exports.checkout = (req, res) => {
-    const { id_user, items, metode_pembayaran } = req.body; 
+    const id_user = req.user.id_user;
+    const { items, metode_pembayaran } = req.body;
     // `items` dikirim dari frontend keranjang berupa array: [{ id_product: 1, jumlah: 2 }]
 
     if (!items || items.length === 0) {
@@ -20,7 +21,7 @@ exports.checkout = (req, res) => {
             // 1. Validasi Stok Gudang & Kalkulasi Diskon Otomatis (R-05 & R-07)
             for (let item of items) {
                 const [targetProduk] = await db.promise().query('SELECT * FROM produk WHERE id_product = ?', [item.id_product]);
-                
+
                 if (targetProduk.length === 0) {
                     db.rollback();
                     return res.status(404).json({ message: `Produk dengan ID ${item.id_product} tidak ditemukan!` });
@@ -60,13 +61,13 @@ exports.checkout = (req, res) => {
 
             // 3. Masukkan Rincian ke Tabel `detail_order`
             for (let rb of rincian_barang) {
-                await db.promise().query('INSERT INTO detail_order (id_order, id_product, jumlah, subtotal) VALUES (?, ?, ?, ?)', 
-                [id_order_baru, rb.id_product, rb.jumlah, rb.subtotal]);
+                await db.promise().query('INSERT INTO detail_order (id_order, id_product, jumlah, subtotal) VALUES (?, ?, ?, ?)',
+                    [id_order_baru, rb.id_product, rb.jumlah, rb.subtotal]);
             }
 
             // 4. Catat ke Tabel `pembayaran` dengan Pilihan Metode (R-11)
-            await db.promise().query('INSERT INTO pembayaran (id_order, metode, status_pembayaran) VALUES (?, ?, "Lunas")', 
-            [id_order_baru, metode_pembayaran]);
+            await db.promise().query('INSERT INTO pembayaran (id_order, metode, status_pembayaran) VALUES (?, ?, "Lunas")',
+                [id_order_baru, metode_pembayaran]);
 
             // Jika semua langkah di atas sukses tanpa interupsi, simpan permanen ke MySQL
             db.commit((err) => {
@@ -74,7 +75,7 @@ exports.checkout = (req, res) => {
                     db.rollback();
                     return res.status(500).json({ error: err.message });
                 }
-                
+
                 // Mengembalikan Struk Digital Berhasil (R-06)
                 res.status(201).json({
                     message: "Checkout keranjang sukses! Transaksi dicatat ke MySQL.",
@@ -96,24 +97,27 @@ exports.checkout = (req, res) => {
 };
 
 exports.getHistory = (req, res) => {
-    // Ambil dari req.params karena menggunakan /history/:id_user
-    const { id_user } = req.params; 
 
-    if (!id_user) {
-        return res.status(400).json({ message: "ID User tidak ditemukan!" });
-    }
+    const id_user = req.user.id_user;
 
     const query = `
-        SELECT id_order, total_harga, created_at 
-        FROM orders 
-        WHERE id_user = ? 
+        SELECT
+            id_order,
+            total_harga,
+            created_at
+        FROM orders
+        WHERE id_user = ?
         ORDER BY created_at DESC
     `;
 
     db.query(query, [id_user], (err, results) => {
+
         if (err) {
-            return res.status(500).json({ error: err.message });
+            return res.status(500).json({
+                error: err.message
+            });
         }
+
         res.json({
             success: true,
             data: results

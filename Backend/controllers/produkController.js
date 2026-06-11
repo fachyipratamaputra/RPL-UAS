@@ -19,10 +19,10 @@ exports.getAllProduk = (req, res) => {
 
 //tambah produk (admin)
 exports.addProduk = (req, res) => {
-    const { nama_produk, harga, stok, diskon, kategori } = req.body;
-    const query = 'INSERT INTO produk (nama_produk,harga, stok, diskon, kategori) VALUES (?, ?, ?, ?, ?)';
+    const { nama_produk, harga, stok, diskon, kategori, gambar } = req.body;
+    const query = 'INSERT INTO produk (nama_produk,harga, stok, diskon, kategori, gambar) VALUES (?, ?, ?, ?, ?, ?)';
     
-    db.query(query, [nama_produk, harga, stok || 0, diskon || 0, kategori], (err, result) => {
+    db.query(query, [nama_produk, harga, stok || 0, diskon || 0, kategori, gambar], (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
         res.status(201).json({ message: "Produk berhasil ditambahkan!", id_product: result.insertId });
     });
